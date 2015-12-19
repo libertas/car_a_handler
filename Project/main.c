@@ -60,7 +60,6 @@ int main(void){
 
 //定时器中断函数,该函数本应该放在stm32f10x_it.c文件里面归类在一起统一管理的，现在为了方便程序的阅读，就搁这了
 void TIM2_IRQHandler(void){
-	int i,j;
   	if( TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET ){
 			TIM_ClearITPendingBit(TIM2 , TIM_FLAG_Update);//必须清除中断标志位否则一直中断
 			g_tim2_irq_flg = 1;

@@ -13,8 +13,8 @@
 void rcc_config(void);
 void gpio_config(void);
 void tim2_config(void);
-void TIM4_Configuration();
+void TIM4_Configuration(void);
 void usart_config(void);
-void nvic_config();
+void nvic_config(void);
 void spi_config(void);
 void system_clk_set(void);
