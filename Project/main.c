@@ -45,13 +45,14 @@ int main(void){
 /*****************这是一条各种外部设备初始化的结束线*************/	
 		TIM_Cmd(TIM2, ENABLE);	 //使能tim2
 		
+		printf("Entering main loop\n");
 		while(1){
 				while(g_tim2_irq_flg == 0);
 				g_tim2_irq_flg = 0;
 				//定时器中断对手柄进行轮询来更新数据，轮询之后跳出中断，在main函数的循环里面执行control()函数来对数据作相应的动作
 				//control()函数在文件handler.c里面
 				//或者你可以自己写其它函数做相应的动作
-				control();  
+				// control();  
 		}
 	
 }

@@ -113,6 +113,43 @@ void SysTick_Handler(void)
 {
 }
 
+
+#include "stm32f10x_usart.h"
+
+void USART1_IRQHandler(void)
+{
+	uint8_t data;
+	
+	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
+	{
+		data = USART_ReceiveData(USART1);
+		USART_SendData(USART1, data);
+	}
+}
+
+void USART3_IRQHandler(void)
+{
+	static uint8_t flag;
+	uint8_t data;
+	
+	if(USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)
+	{
+		if(!flag) {
+			printf("R:\n");
+			flag = 1;
+		}
+		
+		data = USART_ReceiveData(USART3);
+		USART_SendData(USART1, data);
+		
+		if(data == '\n' || data == '\r') {
+			flag = 0;
+			printf("\nReceiving process end\n");
+		}
+	}
+}
+
+
 /******************************************************************************/
 /*                 STM32F10x Peripherals Interrupt Handlers                   */
 /*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */
