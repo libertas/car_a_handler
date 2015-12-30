@@ -30,7 +30,7 @@ void system_clk_set(void)
   if(HSEStartUpStatus == SUCCESS)     
   {
     RCC_HCLKConfig(RCC_SYSCLK_Div1);  
-    RCC_PCLK2Config(RCC_HCLK_Div2);   
+    RCC_PCLK2Config(RCC_HCLK_Div1);   
 		RCC_PCLK1Config(RCC_HCLK_Div2);  
  
    // FLASH_SetLatency(FLASH_Latency_2);   
@@ -209,7 +209,7 @@ void usart_config(void)
 	USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;  //发送和接受模式
 	USART_Init(USART1, &USART_InitStructure);	 //初始化串口	
 	USART_Cmd(USART1, ENABLE);	  //使能串口
-	USART_ITConfig(USART1,USART_IT_RXNE, ENABLE);
+	USART_ITConfig(USART3,USART_IT_RXNE, ENABLE);
 	
 	//串口2
 	USART_InitStructure.USART_BaudRate = 115200; 	   //设置波特率
@@ -267,7 +267,7 @@ void nvic_config()
 void spi_config(void)  //手柄
 {
 	SPI_InitTypeDef SPI_Structure;
-	SPI_Structure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64;	//分频，分子为CPU时钟频率
+	SPI_Structure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_256;	//分频，分子为CPU时钟频率
 	SPI_Structure.SPI_CPHA = SPI_CPHA_2Edge;							//第二个边沿开始采样
 	SPI_Structure.SPI_CPOL = SPI_CPOL_High;								//时钟空闲时为高电平
 	SPI_Structure.SPI_CRCPolynomial = 7;								//CRC校验多项式

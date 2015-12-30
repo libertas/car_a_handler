@@ -5,11 +5,11 @@ int fputc(int ch, FILE *f)
 {
     /* Place your implementation of fputc here */
     /* Loop until the end of transmission */
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
+    while (USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET)
     {}
 
     /* e.g. write a character to the USART */
-    USART_SendData(USART1, (uint8_t) ch);
+    USART_SendData(USART3, (uint8_t) ch);
 
     return ch;
 }
@@ -17,11 +17,11 @@ int fputc(int ch, FILE *f)
 int fgetc(FILE *fp)
 {
 	int ch = 0;
-    while(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == RESET)
+    while(USART_GetFlagStatus(USART3, USART_FLAG_RXNE) == RESET)
     {
     }
 
-    ch = (int)USART1->DR & 0xFF;
+    ch = (int)USART3->DR & 0xFF;
 	
     //putchar(ch); //╩ьот
 	

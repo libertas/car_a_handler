@@ -285,7 +285,7 @@ int control(){
 }
 
 
-int  handle_init(void)
+int handle_init(void)
 {
 	int i,try_times = 0;
 	uint8_t PSX_Ana = 0x00;	   //进入Analog Mode的标志
@@ -341,7 +341,7 @@ int  handle_init(void)
 			delay_us(5);//2
 			if(PSX_Ana != 255){
 				try_times++;
-				if(try_times == 100){  //尝试连接30次不成功
+				if(try_times == 100){  //尝试连接100次不成功
 					return -1;
 				}
 				delay_ms(100);
@@ -353,6 +353,6 @@ int  handle_init(void)
 
 
 void handler_test(void){
-	myprintf(USART1,"%d*%d*%d*%d*%d*%d\n",data[3],data[4],data[5],data[6],data[7],data[8]);
+	myprintf(USART3,"%x*%x*%x*%x*%x*%x\n",data[3],data[4],data[5],data[6],data[7],data[8]);
 }
 
