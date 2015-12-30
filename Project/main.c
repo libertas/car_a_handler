@@ -6,6 +6,17 @@
 *
 */
 
+/************************************************
+*手柄使用的是SPI协议，SPI由在文件configuration.c中的spi_config()函数进行初始化，
+*而手柄由在文件handle.c中的handle_init()函数进行初始化
+*初始化SPI协议的时候，注意波特率不能太高，如果太高了，手柄是不能够响应得了的，其后果是读到的数据都是255
+*spi的波特率由configuration.c中函数rcc_config()里的system_clk_set()调用的	RCC_PCLK1Config() 和 configuration.c中的spi_config()对SPI_Structure.SPI_BaudRatePrescaler所设置 
+*共同决定
+*
+*简单的来说，使能好SPI的时钟，配置好手柄相应的GPIO，调用spi_config() 和 handle_init()函数之后，如果没出现异常，调用lunxun()函数，即可以接收到手柄的数据data[]
+*如果读不了数据，先看GPIO有没有配置好，然后再看看spi时钟有没有设置好，再看看spi_config()有没有对spi配置好，最后看看handle_init()函数（主要）
+**********************2015-12-30*************************/
+
 
 
 
@@ -45,14 +56,13 @@ int main(void){
 /*****************这是一条各种外部设备初始化的结束线*************/	
 		TIM_Cmd(TIM2, ENABLE);	 //使能tim2
 		
-		printf("Entering main loop\n");
 		while(1){
 				while(g_tim2_irq_flg == 0);
 				g_tim2_irq_flg = 0;
 				//定时器中断对手柄进行轮询来更新数据，轮询之后跳出中断，在main函数的循环里面执行control()函数来对数据作相应的动作
 				//control()函数在文件handler.c里面
 				//或者你可以自己写其它函数做相应的动作
-				// control();  
+				control();  
 		}
 	
 }
@@ -60,10 +70,12 @@ int main(void){
 
 //定时器中断函数,该函数本应该放在stm32f10x_it.c文件里面归类在一起统一管理的，现在为了方便程序的阅读，就搁这了
 void TIM2_IRQHandler(void){
+	int i,j;
   	if( TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET ){
 			TIM_ClearITPendingBit(TIM2 , TIM_FLAG_Update);//必须清除中断标志位否则一直中断
 			g_tim2_irq_flg = 1;
 			lunxun();  //轮询手柄，获得手柄数据，数据保存在由handler.c文件定义的data[]数组里面，这是上一届队员写的程序，不过也被我改了下
+			handler_test();
 		}	
 
 }
