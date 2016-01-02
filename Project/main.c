@@ -72,6 +72,73 @@ void send_control_data(void)
 {
 	uint8_t cmd;
 	int8_t spd_x, spd_y;
+	
+	
+	if(!(data[4] & 0x10)) {
+		// left up key
+		#ifdef DEBUG
+		printf("lu key\n");
+		#endif
+		
+		return;
+	} else if(!(data[4] & 0x40)) {
+		// left down key
+		#ifdef DEBUG
+		printf("ld key\n");
+		#endif
+		
+		return;
+	} else if(!(data[4] & 0x80)) {
+		// left left key
+		#ifdef DEBUG
+		printf("ll key\n");
+		#endif
+		
+		return;
+	} else if(!(data[4] & 0x20)) {
+		// left right key
+		#ifdef DEBUG
+		printf("lr key\n");
+		#endif
+		
+		return;
+	} else if(!(data[5] & 0x10)) {
+		// right up key
+		#ifdef DEBUG
+		printf("ru key\n");
+		#endif
+		
+		return;
+	} else if(!(data[5] & 0x40)) {
+		// right down key
+		#ifdef DEBUG
+		printf("rd key\n");
+		#endif
+		
+		return;
+	} else if(!(data[5] & 0x80)) {
+		// right left key
+		#ifdef DEBUG
+		printf("rl key\n");
+		#endif
+		
+		return;
+	} else if(!(data[5] & 0x20)) {
+		// right right key
+		#ifdef DEBUG
+		printf("rr key\n");
+		#endif
+		
+		return;
+	}
+	else {
+		#ifdef DEBUG
+		printf("no key\n");
+		printf("%x\n", data[4]);
+		#endif
+	}
+	
+
 	spd_x = data[6] - 0x80;
 	spd_y = 0x7f - data[7];
 	
@@ -91,7 +158,7 @@ void TIM2_IRQHandler(void){
 			TIM_ClearITPendingBit(TIM2 , TIM_FLAG_Update);//必须清除中断标志位否则一直中断
 			g_tim2_irq_flg = 1;
 			lunxun();  //轮询手柄，获得手柄数据，数据保存在由handler.c文件定义的data[]数组里面，这是上一届队员写的程序，不过也被我改了下
-			//handler_test();
+			// handler_test();
 			send_control_data();
 		}	
 
