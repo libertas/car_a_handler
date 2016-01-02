@@ -104,6 +104,6 @@ int handle_init(void)
 
 
 void handler_test(void){
-	// uprintf(USART3,"%x\t%x\t%x\t%x\t%x\n",data[4],data[5],data[6],data[7],data[8]);
+	uprintf(USART3,"%x\t%x\t%x\t%x\t%x\n",data[4],data[5],data[6],data[7],data[8]);
 }
 

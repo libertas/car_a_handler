@@ -58,8 +58,10 @@ int main(void){
 		TIM_Cmd(TIM2, ENABLE);	 //使能tim2
 		
 		while(1){
+			/*
 				while(g_tim2_irq_flg == 0);
 				g_tim2_irq_flg = 0;
+			*/
 				//定时器中断对手柄进行轮询来更新数据，轮询之后跳出中断，在main函数的循环里面执行control()函数来对数据作相应的动作
 				//control()函数在文件handler.c里面
 				//或者你可以自己写其它函数做相应的动作
@@ -130,8 +132,31 @@ void send_control_data(void)
 		#endif
 		
 		return;
-	}
-	else {
+	} else if(!(data[5] & 0x01)) {
+		#ifdef DEBUG
+		printf("l2 key\n");
+		#endif
+		
+		return;
+	} else if(!(data[5] & 0x04)) {
+		#ifdef DEBUG
+		printf("l1 key\n");
+		#endif
+		
+		return;
+	} else if(!(data[5] & 0x08)) {
+		#ifdef DEBUG
+		printf("r1 key\n");
+		#endif
+		
+		return;
+	} else if(!(data[5] & 0x02)) {
+		#ifdef DEBUG
+		printf("r2 key\n");
+		#endif
+		
+		return;
+	} else {
 		#ifdef DEBUG
 		printf("no key\n");
 		printf("%x\n", data[4]);
