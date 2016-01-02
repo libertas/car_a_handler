@@ -26,7 +26,7 @@
 #include "global.h"
 #include "handler.h"
 
-#define CMD_TIMES 20
+#define CMD_TIMES 10
 
 int g_tim2_irq_flg;
 char tmp_buf[17] = {0};
@@ -60,7 +60,7 @@ void send_control_data(void)
 		uprintf(USART3, "%x\t%x\t%x\t%x\n", cmd, tmp, tmp1, check_sum);
 		#endif
 		
-		return;
+
 	} else if(!(data[4] & 0x40)) {
 		// left down key
 		#ifdef DEBUG
@@ -78,7 +78,7 @@ void send_control_data(void)
 		uprintf(USART3, "%x\t%x\t%x\t%x\n", cmd, tmp, tmp1, check_sum);
 		#endif
 		
-		return;
+
 	} else if(!(data[4] & 0x80)) {
 		// left left key
 		#ifdef DEBUG
@@ -96,7 +96,7 @@ void send_control_data(void)
 		uprintf(USART3, "%x\t%x\t%x\t%x\n", cmd, tmp, tmp1, check_sum);
 		#endif
 		
-		return;
+
 	} else if(!(data[4] & 0x20)) {
 		// left right key
 		#ifdef DEBUG
@@ -113,21 +113,21 @@ void send_control_data(void)
 		uprintf(USART3, "%x\t%x\t%x\t%x\n", cmd, tmp, tmp1, check_sum);
 		#endif
 		
-		return;
+
 	} else if(!(data[5] & 0x10)) {
 		// right up key
 		#ifdef DEBUG
 		printf("ru key\n");
 		#endif
 		
-		return;
+
 	} else if(!(data[5] & 0x40)) {
 		// right down key
 		#ifdef DEBUG
 		printf("rd key\n");
 		#endif
 		
-		return;
+
 	} else if(!(data[5] & 0x80)) {
 		// right left key
 		#ifdef DEBUG
@@ -142,38 +142,38 @@ void send_control_data(void)
 		uprintf(USART3, "%x\t%x\n", cmd, check_sum);
 		#endif
 		
-		return;
+
 	} else if(!(data[5] & 0x20)) {
 		// right right key
 		#ifdef DEBUG
 		printf("rr key\n");
 		#endif
 		
-		return;
+
 	} else if(!(data[5] & 0x01)) {
 		#ifdef DEBUG
 		printf("l2 key\n");
 		#endif
 		
-		return;
+
 	} else if(!(data[5] & 0x04)) {
 		#ifdef DEBUG
 		printf("l1 key\n");
 		#endif
 		
-		return;
+
 	} else if(!(data[5] & 0x08)) {
 		#ifdef DEBUG
 		printf("r1 key\n");
 		#endif
 		
-		return;
+
 	} else if(!(data[5] & 0x02)) {
 		#ifdef DEBUG
 		printf("r2 key\n");
 		#endif
 		
-		return;
+
 	} else {
 		spd_x = data[6] - 0x80;
 		spd_y = 0x7f - data[7];
