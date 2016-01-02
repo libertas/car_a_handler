@@ -87,11 +87,14 @@ void send_control_data(void)
 		#endif
 		
 		cmd = 0x20;
-		arg_spd *= -1;
 		tmp = ((uint16_t) arg_spd) >> 8;
 		tmp1 = (uint8_t) arg_spd;
 		check_sum = cmd + tmp + tmp1;
 		uprintf(USART1, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
+		
+		#ifdef DEBUG
+		uprintf(USART3, "%x\t%x\t%x\t%x\n", cmd, tmp, tmp1, check_sum);
+		#endif
 		
 		return;
 	} else if(!(data[4] & 0x40)) {
@@ -101,10 +104,15 @@ void send_control_data(void)
 		#endif
 		
 		cmd = 0x20;
+		arg_spd *= -1;
 		tmp = ((uint16_t) arg_spd) >> 8;
 		tmp1 = (uint8_t) arg_spd;
 		check_sum = cmd + tmp + tmp1;
 		uprintf(USART1, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
+		
+		#ifdef DEBUG
+		uprintf(USART3, "%x\t%x\t%x\t%x\n", cmd, tmp, tmp1, check_sum);
+		#endif
 		
 		return;
 	} else if(!(data[4] & 0x80)) {
@@ -120,6 +128,10 @@ void send_control_data(void)
 		check_sum = cmd + tmp + tmp1;
 		uprintf(USART1, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
 		
+		#ifdef DEBUG
+		uprintf(USART3, "%x\t%x\t%x\t%x\n", cmd, tmp, tmp1, check_sum);
+		#endif
+		
 		return;
 	} else if(!(data[4] & 0x20)) {
 		// left right key
@@ -132,6 +144,10 @@ void send_control_data(void)
 		tmp1 = (uint8_t) arg_spd;
 		check_sum = cmd + tmp + tmp1;
 		uprintf(USART1, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
+		
+		#ifdef DEBUG
+		uprintf(USART3, "%x\t%x\t%x\t%x\n", cmd, tmp, tmp1, check_sum);
+		#endif
 		
 		return;
 	} else if(!(data[5] & 0x10)) {
