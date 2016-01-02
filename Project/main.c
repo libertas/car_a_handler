@@ -19,7 +19,7 @@
 
 
 
-
+#include <stdint.h>
 
 #include "global.h"
 #include "handler.h"
@@ -50,7 +50,7 @@ int main(void){
 /*****************这是一条各种外部设备初始化的起始线*************/	
 		erro_num = handle_init();  //初始化手柄
 		if(erro_num < 0){
-				myprintf(USART1,"handle init failure!!");
+				uprintf(USART3,"handle init failure!!");
 				while(1);
 		}
 /*****************这是一条各种外部设备初始化的结束线*************/	
@@ -62,20 +62,32 @@ int main(void){
 				//定时器中断对手柄进行轮询来更新数据，轮询之后跳出中断，在main函数的循环里面执行control()函数来对数据作相应的动作
 				//control()函数在文件handler.c里面
 				//或者你可以自己写其它函数做相应的动作
-				control();  
 		}
 	
 }
 
 
+void send_control_data(void)
+{
+	uint8_t cmd;
+	int8_t spd_x, spd_y;
+	spd_x = 128 - data[6];
+	spd_y = 128 - data[7];
+	
+	cmd = 0x22;  // move_xy_c(int8_t spd_x, int8_t spd_y)
+	uprintf(USART1, "%c%c%c%c", cmd, spd_x, spd_y, cmd + spd_x + spd_y); 
+}
+
+
+
 //定时器中断函数,该函数本应该放在stm32f10x_it.c文件里面归类在一起统一管理的，现在为了方便程序的阅读，就搁这了
 void TIM2_IRQHandler(void){
-	int i,j;
   	if( TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET ){
 			TIM_ClearITPendingBit(TIM2 , TIM_FLAG_Update);//必须清除中断标志位否则一直中断
 			g_tim2_irq_flg = 1;
 			lunxun();  //轮询手柄，获得手柄数据，数据保存在由handler.c文件定义的data[]数组里面，这是上一届队员写的程序，不过也被我改了下
-			handler_test();
+			//handler_test();
+			send_control_data();
 		}	
 
 }

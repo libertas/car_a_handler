@@ -32,256 +32,7 @@ void lunxun()
 	}
 	GPIO_SetBits(GPIOB, ATT);
 	delay_us(5);
-	//myprintf(USART1,"%d*%d*%d*%d*%d*%d",data[4],data[5],data[6],data[7],data[8],data[9]);
-}
-
-void shouDongMove(double a,double b,double c)
-{
-	v1 = 1.41421*(a+b)/2+c;
-	v2 = 1.41421*(a-b)/2+c;
-	v3 = -1.41421*(a-b)/2+c;
-	v4 = -1.41421*(a+b)/2+c;
-	if(v1>MAXv)  {v1=MAXv;}
-  	else if(v1<-MAXv) {v1=-MAXv;}
-    if(v2>MAXv)	{v2=MAXv;}
-    else if (v2<-MAXv) {v2=-MAXv;}
-    if(v3>MAXv)	{v3=MAXv;}
-    else if(v3<-MAXv)  {v3=-MAXv;}
-	if(v4>MAXv)  {v4=MAXv;}
-  	else if(v4<-MAXv) {v4=-MAXv;}
-	myprintf(USART1, "1v%d\r2v%d\r3v%d\r4v%d\r", v1, v2, v3,v4);
-//	LCDMainPrintf("%d %d %d %d",v1, v2, v3,v4);
-}
-/*L1 L2 R1 R2 ◊È∫œº¸  data[5] ˝◊È÷µ
-	  »´∞¥ 240
-			 L1	  L2	 R1	 R2          
-	L1  251  250  243  249
-	
-	L2  250  254  246  252
-	
-	R1  243  246  247  245
-	
-	R2  249  252  245  253
-	*/
-void press()
-{   
-//	int i;
-/*	for(i=0;i<=9;i++)
-	{
-		myprintf(USART1,"[%d]=%d    ",i,data[i]);		
-	}  */
-	
-	myprintf(USART1,"a\r");
-	myprintf(USART1, "1ac%d\r2ac%d\r3ac%d\r4ac%d\r", 400, 1000, 400, 1000);
-	myprintf(USART1, "1dec%d\r2dec%d\r3dec%d\r4dec%d\r", 500, 500, 500, 500);
-//	myprintf(USART1,"1ac300\r");myprintf(USART1,"1dec300\r");
-//	myprintf(USART1,"2ac300\r");myprintf(USART1,"2dec300\r");
-//	myprintf(USART1,"3ac170\r");myprintf(USART1,"3dec500\r");
-//	myprintf(USART1,"4ac800\r");myprintf(USART1,"4dec500\r");
-/*	 if(((data[6]&&data[7]&&data[8]&&data[9])==255))		//||((data[6]||data[7]||data[8]||data[9])==0)
-	{
-		myprintf(USART1," ÷±˙“—±¿!!!!!!!\r\n");
-	}
-	else if(((data[6]&&data[7]&&data[8]&&data[9])!=255))	//&&((data[6]||data[7]||data[8]||data[9])!=0)
-	{
-		myprintf(USART1," ÷±˙ª÷∏¥’˝≥£~~~~~\r\n");
-	}									*/
-	if(data[5] == 251)  //L1
-	{
-
-		  w = -2500;										//µ◊≈ÃƒÊ ±’Î–˝◊™
-		
-	}
-	else if(data[5] == 254)  // L2
-	{
-		myprintf(USART3,"a ");      //a∑¢«Ú
-	}
-		
-	else if(data[5] == 247)   //R1   
-	{
-      w = 2500;										//µ◊≈ÃÀ≥ ±’Î–˝◊™	
-	
-	}
-	else if(data[5] == 253) // R2
-	{
-		myprintf(USART3,"b ");      //b∑¢«Ú
-	}
-	else
-	{
-		w = 0;
-	}
-	/*
-	if(data[4]==239)	//    up
-	{   
-		
-	}
-		
-	else if(data[4]==191)	//  down
-	{
-		 
-	}	
-		
-	else if(data[4]==223)	 //  right	
-	{
-			
-		
-	}
-	else if(data[4]==127)     //  left
-	{		
-	
-	}
-	else
-	{
-	
-	}
-	*/
-	if(data[5]==191)	//≤Ê≤Ê±ª∞¥œ¬
-	{	
-			myprintf(USART3,"x ");
-	}	
-	if(data[5]==223)	 // »¶»¶
-	{
-		myprintf(USART3,"o ");
-	}		
-	if(data[5]==127)	 //øÚøÚ
-	{
-		myprintf(USART3,"s ");          //∑¢«Ú◊∞÷√ ºÃµÁ∆˜ø™ªÚπÿ
-	}  
-	if(data[5]==239)       //»˝Ω«
-	{
-     myprintf(USART3,"o ");
-	}
-	if(data[5]==255)	 //≤ª∞¥
-	{
-		myprintf(USART3,"t ");              //Õ£÷π
-	}
-	
-	if(data[5]!=239)
-	{		
-		if((data[9]>=180))  //◊Û“°∏Àœ¬   	   	
-			vy=(160-data[9]);						
-		if(data[9]<=90)	    //◊Û“°∏À…œ
-		{
-			vy=(90-data[9])*shouDongMaxv;			    
-		}
-		
-		if((data[8]>=180))	  //◊Û“°∏À”“
-			vx=-(160-data[8])*shouDongMaxv;
-		if(data[8]<=90)	      //◊Û“°∏À◊Û
-			vx=-(90-data[8]);
-												
-		 
-		/*
-		if(data[6]>=150)	    	//”““°∏À”“
-			w=-(140-data[6])*shouDongMaxv;								
-		if(data[6]<=90)	       //”““°∏À◊Û
-			w=-(90-data[6])*shouDongMaxv;					
-		if(data[7]<=90)	       //”““°∏À…œ
-		{}
-		if(data[7]>=150)	   //”““°∏Àœ¬
-		{}
-		*/
-	
-	
-		if((data[7]>=160))  //”““°∏Àœ¬   	   	
-			vy=(90-data[9])*shouDongMaxv;
-		if(data[7]<=90)	    //”““°∏À…œ
-			vy=(160-data[9])*shouDongMaxv;
-		if((data[6]>=160))	  //”““°∏À”“
-			vx=-(90-data[8])*shouDongMaxv;		
-		if(data[6]<=90)	      //”““°∏À◊Û
-			vx=-(160-data[8])*shouDongMaxv;
-												
-		if(data[9]>90&&data[9]<180)
-		{
-					if(vy > 1000)
-						vy -= 900;
-					else if (vy < -1000)
-						vy += 900;
-					else
-						vy = 0;
-		}
-
-		if((data[8]>90)&&(data[8]<180))
-		{
-				if(vx > 1000)
-					vx -= 900;
-				else if(vx < -1000)
-					vx += 900;
-				else
-					vx = 0; 
-		}			
-		/*
-		if(data[6]>=150)	    	//”““°∏À”“
-			w=-(140-data[6])*shouDongMaxv;								
-		if(data[6]<=90)	       //”““°∏À◊Û
-			w=-(90-data[6])*shouDongMaxv;					
-		if(data[7]<=90)	       //”““°∏À…œ
-		{}
-		if(data[7]>=150)	   //”““°∏Àœ¬
-		{}
-		*/
-	
-	}
-	shouDongMove(vx,vy,w);
-} 
-
-
-int control(){
-//	if(data[4] == ){
-//		if((data[8]>=160)){  //◊Û“°∏Àœ¬   	  
-//			ctr_v0=(130-data[8])*shouDongMaxv;	
-//			ctr_v2=-(130-data[8])*shouDongMaxv;	
-//		}			
-//		else if(data[8]<=90)	    //◊Û“°∏À…œ
-//		{
-//			ctr_v0=(130-data[8])*shouDongMaxv;	
-//			ctr_v2=-(130-data[8])*shouDongMaxv;		    
-//		}
-//		else{
-//			ctr_v0 = 0;	
-//			ctr_v2 = 0;		  
-//		}
-//		
-		if((data[7]>=160)){	  //◊Û“°∏À”“
-			w=(110-data[7])*shouDongMaxv;
-		}
-		else if(data[7]<=90){	      //◊Û“°∏À◊Û
-			w=(110-data[7])*shouDongMaxv;
-		}
-		else{
-			w = 0;
-		}
-	
-//	else{
-		if((data[6]>=130)){  //”““°∏Àœ¬   	  
-			v_y=(130-data[6])*shouDongMaxv;	
-		}			
-		else if(data[6]<=100)	    //”““°∏À…œ
-		{
-			v_y=(130-data[6])*shouDongMaxv;	  
-		}
-		else{
-			v_y = 0;		  
-		}
-		
-		if((data[5]>=130)){	  //”““°∏À”“
-			v_x=(110-data[5])*shouDongMaxv;
-		}
-		else if(data[5]<=100){	      //”““°∏À◊Û
-			v_x=(110-data[5])*shouDongMaxv;
-		}
-		else{
-			v_x = 0;
-		}
-		myprintf(USART2, "2v%d\r5v%d\r3v%d\r", (int)motor_v[0],(int)motor_v[1], (int)motor_v[2]);
-	  //printf(USART2, "v3000\r");
-		myprintf(USART1, "5v%d  3v%d  2v%d\n", (int)motor_v[0],(int)motor_v[1], (int)motor_v[2]);
-		//	myprintf(USART2, "0v%d\rv%d\r2v%d\r", motor_v[0],motor_v[1], motor_v[2]);
-	//}
-//	myprintf(USART2, "0v%d\r1v%d\r2v%d\r", ctr_v0,ctr_v1, ctr_v2);
-	//myprintf(USART1, "0v%d  1v%d  2v%d\n", ctr_v0,ctr_v1, ctr_v2);
-	return 1;
+	//myprintf(USART3,"%d*%d*%d*%d*%d*%d",data[4],data[5],data[6],data[7],data[8],data[9]);
 }
 
 
@@ -314,7 +65,7 @@ int handle_init(void)
 				if (i == 1){
 					PSX_Ana = SPI_I2S_ReceiveData(SPI2);
 					if(PSX_Ana == 255){
-						myprintf(USART1,"PSX_Ana = 0x%x\n",PSX_Ana);
+						uprintf(USART3,"PSX_Ana = 0x%x\n",PSX_Ana);
 					}
 				}
 				else
@@ -331,8 +82,8 @@ int handle_init(void)
 				while(SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_RXNE) == RESET);  //0x01,0x43,0x00,0x00,0x5A,0x5A,0x5A,0x5A,0x5A
 				if (i == 1){
 					PSX_Ana_check = SPI_I2S_ReceiveData(SPI2);
-					myprintf(USART1,"PSX_Ana = 0x%x\n",PSX_Ana);
-					myprintf(USART1,"PSX_Ana_check = 0x%x\n",PSX_Ana_check);
+					uprintf(USART3,"PSX_Ana = 0x%x\n",PSX_Ana);
+					uprintf(USART3,"PSX_Ana_check = 0x%x\n",PSX_Ana_check);
 				}
 				else	 
 					SPI_I2S_ReceiveData(SPI2);
@@ -353,6 +104,6 @@ int handle_init(void)
 
 
 void handler_test(void){
-	myprintf(USART3,"%x*%x*%x*%x*%x*%x\n",data[3],data[4],data[5],data[6],data[7],data[8]);
+	uprintf(USART3,"%x*%x*%x*%x*%x*%x\n",data[3],data[4],data[5],data[6],data[7],data[8]);
 }
 

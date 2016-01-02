@@ -1,5 +1,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
+#include "stm32f10x_usart.h"
 
 /** @addtogroup STM32F10x_StdPeriph_Template
   * @{
@@ -15,6 +16,28 @@
 /******************************************************************************/
 /*            Cortex-M3 Processor Exceptions Handlers                         */
 /******************************************************************************/
+
+void USART1_IRQHandler(void)
+{
+	uint8_t data;
+	
+	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
+	{
+		data = USART_ReceiveData(USART1);
+		USART_SendData(USART3, data);
+	}
+}
+
+void USART3_IRQHandler(void)
+{
+	uint8_t data;
+	
+	if(USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)
+	{
+		data = USART_ReceiveData(USART3);
+		USART_SendData(USART3, data);
+	}
+}
 
 /**
   * @brief   This function handles NMI exception.

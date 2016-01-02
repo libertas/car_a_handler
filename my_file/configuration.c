@@ -244,6 +244,14 @@ void nvic_config()
     NVIC_InitStructure.NVIC_IRQChannelSubPriority =0;//0
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure); 
+	
+	//USART1 中断
+	  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+    NVIC_InitStructure.NVIC_IRQChannel=USART1_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority =0;//1
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority =0;//0
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure); 
 		
 		//配置外部中断 
 		NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);

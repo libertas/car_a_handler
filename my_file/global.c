@@ -28,7 +28,7 @@ int fgetc(FILE *fp)
 	return ch;
 }
 
-void myprintf(USART_TypeDef* USARTx, char *fmt, ...)
+void uprintf(USART_TypeDef* USARTx, char *fmt, ...)
 {
 
 	char buffer[CMD_BUFFER_LEN+1];  // CMD_BUFFER_LEN长度自己定义吧

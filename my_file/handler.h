@@ -15,9 +15,12 @@
 #define Lb 19.5
 
 
-void lunxun();
-void press();                      //根据按键值执行
+void lunxun(void);
+void press(void);                      //根据按键值执行
 void shouDongMove(double a,double b,double c);
 int  handle_init(void);
-int control();
+int control(void);
 void handler_test(void);
+
+extern uint8_t data[10];
+extern uint8_t data_old[10];
