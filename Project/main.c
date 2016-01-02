@@ -20,54 +20,18 @@
 
 
 #include <stdint.h>
+#include <string.h>
 
 #include "debug.h"
 #include "global.h"
 #include "handler.h"
 
+#define CMD_TIMES 20
 
 int g_tim2_irq_flg;
-
-
-int main(void){
-/****************这是一条各种数据定义的起始线**********************/	
-		int erro_num;
-	
-/****************这是一条各种数据定义的结束线**********************/	
-	
-	
-	
-/****************这是一条芯片各种配置的起始线**********************/
-  	rcc_config();  //配置时钟，，，在函数里边，调用system_clk_set()函数来配置系统时钟
-		gpio_config();  //配置GPIO
-		tim2_config(); //使用定时器2，它产生的中断用来对手柄数据进行轮询....tim2先配置好，但不使能那么快，初始化手柄之后再使能
-		usart_config();   
-		nvic_config();  //配置中断
-		spi_config();      //配置SPI，用作手柄
-/****************这是一条芯片各种配置的结束线*********************/
-	
-	
-		
-/*****************这是一条各种外部设备初始化的起始线*************/	
-		erro_num = handle_init();  //初始化手柄
-		if(erro_num < 0){
-				uprintf(USART3,"handle init failure!!");
-				while(1);
-		}
-/*****************这是一条各种外部设备初始化的结束线*************/	
-		TIM_Cmd(TIM2, ENABLE);	 //使能tim2
-		
-		while(1){
-			/*
-				while(g_tim2_irq_flg == 0);
-				g_tim2_irq_flg = 0;
-			*/
-				//定时器中断对手柄进行轮询来更新数据，轮询之后跳出中断，在main函数的循环里面执行control()函数来对数据作相应的动作
-				//control()函数在文件handler.c里面
-				//或者你可以自己写其它函数做相应的动作
-		}
-	
-}
+char tmp_buf[17] = {0};
+char cmd_buf[17] = {0};
+uint16_t cmd_counter = 0;
 
 
 void send_control_data(void)
@@ -90,7 +54,7 @@ void send_control_data(void)
 		tmp = ((uint16_t) arg_spd) >> 8;
 		tmp1 = (uint8_t) arg_spd;
 		check_sum = cmd + tmp + tmp1;
-		uprintf(USART1, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
+		sprintf(tmp_buf, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
 		
 		#ifdef DEBUG
 		uprintf(USART3, "%x\t%x\t%x\t%x\n", cmd, tmp, tmp1, check_sum);
@@ -108,7 +72,7 @@ void send_control_data(void)
 		tmp = ((uint16_t) arg_spd) >> 8;
 		tmp1 = (uint8_t) arg_spd;
 		check_sum = cmd + tmp + tmp1;
-		uprintf(USART1, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
+		sprintf(tmp_buf, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
 		
 		#ifdef DEBUG
 		uprintf(USART3, "%x\t%x\t%x\t%x\n", cmd, tmp, tmp1, check_sum);
@@ -126,7 +90,7 @@ void send_control_data(void)
 		tmp = ((uint16_t) arg_spd) >> 8;
 		tmp1 = (uint8_t) arg_spd;
 		check_sum = cmd + tmp + tmp1;
-		uprintf(USART1, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
+		sprintf(tmp_buf, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
 		
 		#ifdef DEBUG
 		uprintf(USART3, "%x\t%x\t%x\t%x\n", cmd, tmp, tmp1, check_sum);
@@ -143,7 +107,7 @@ void send_control_data(void)
 		tmp = ((uint16_t) arg_spd) >> 8;
 		tmp1 = (uint8_t) arg_spd;
 		check_sum = cmd + tmp + tmp1;
-		uprintf(USART1, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
+		sprintf(tmp_buf, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
 		
 		#ifdef DEBUG
 		uprintf(USART3, "%x\t%x\t%x\t%x\n", cmd, tmp, tmp1, check_sum);
@@ -168,6 +132,14 @@ void send_control_data(void)
 		// right left key
 		#ifdef DEBUG
 		printf("rl key\n");
+		#endif
+		
+		cmd = 0x00;
+		check_sum = cmd;
+		sprintf(tmp_buf, "%c%c", cmd, check_sum);
+		
+		#ifdef DEBUG
+		uprintf(USART3, "%x\t%x\n", cmd, check_sum);
 		#endif
 		
 		return;
@@ -203,21 +175,71 @@ void send_control_data(void)
 		
 		return;
 	} else {
+		spd_x = data[6] - 0x80;
+		spd_y = 0x7f - data[7];
+	
+		cmd = 0x22;  // move_xy_c(int8_t spd_x, int8_t spd_y)
+		sprintf(tmp_buf, "%c%c%c%c", cmd, spd_x, spd_y, cmd + spd_x + spd_y); 
+	
 		#ifdef DEBUG
-		printf("no key\n");
+		uprintf(USART3, "0x%x\t0x%x\t0x%x\t0x%x\n", (uint8_t)cmd, (uint8_t)spd_x, (uint8_t)spd_y, (uint8_t)(cmd + spd_x + spd_y));
 		#endif
 	}
 	
+	
+	if(strcmp(cmd_buf, tmp_buf) == 0) {
+		if(CMD_TIMES <= cmd_counter) {
+			uprintf(USART1, cmd_buf);
+			cmd_counter = 0;
+		} else {
+			cmd_counter++;
+		}
+	} else {
+		strcpy(cmd_buf, tmp_buf);
+		cmd_counter = 0;
+	}
+}
 
-	spd_x = data[6] - 0x80;
-	spd_y = 0x7f - data[7];
+
+int main(void){
+/****************这是一条各种数据定义的起始线**********************/	
+		int erro_num;
 	
-	cmd = 0x22;  // move_xy_c(int8_t spd_x, int8_t spd_y)
-	uprintf(USART1, "%c%c%c%c", cmd, spd_x, spd_y, cmd + spd_x + spd_y); 
+/****************这是一条各种数据定义的结束线**********************/	
 	
-	#ifdef DEBUG
-	uprintf(USART3, "0x%x\t0x%x\t0x%x\t0x%x\n", (uint8_t)cmd, (uint8_t)spd_x, (uint8_t)spd_y, (uint8_t)(cmd + spd_x + spd_y));
-	#endif
+	
+	
+/****************这是一条芯片各种配置的起始线**********************/
+  	rcc_config();  //配置时钟，，，在函数里边，调用system_clk_set()函数来配置系统时钟
+		gpio_config();  //配置GPIO
+		tim2_config(); //使用定时器2，它产生的中断用来对手柄数据进行轮询....tim2先配置好，但不使能那么快，初始化手柄之后再使能
+		usart_config();   
+		nvic_config();  //配置中断
+		spi_config();      //配置SPI，用作手柄
+/****************这是一条芯片各种配置的结束线*********************/
+	
+	
+		
+/*****************这是一条各种外部设备初始化的起始线*************/	
+		erro_num = handle_init();  //初始化手柄
+		if(erro_num < 0){
+				uprintf(USART3,"handle init failure!!");
+				while(1);
+		}
+/*****************这是一条各种外部设备初始化的结束线*************/	
+		TIM_Cmd(TIM2, ENABLE);	 //使能tim2
+		
+		while(1){
+			while(g_tim2_irq_flg == 0);
+
+			g_tim2_irq_flg = 0;
+			send_control_data();
+
+				//定时器中断对手柄进行轮询来更新数据，轮询之后跳出中断，在main函数的循环里面执行control()函数来对数据作相应的动作
+				//control()函数在文件handler.c里面
+				//或者你可以自己写其它函数做相应的动作
+		}
+	
 }
 
 
@@ -229,7 +251,6 @@ void TIM2_IRQHandler(void){
 			g_tim2_irq_flg = 1;
 			lunxun();  //轮询手柄，获得手柄数据，数据保存在由handler.c文件定义的data[]数组里面，这是上一届队员写的程序，不过也被我改了下
 			// handler_test();
-			send_control_data();
 		}	
 
 }
