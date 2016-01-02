@@ -74,6 +74,10 @@ void send_control_data(void)
 {
 	uint8_t cmd;
 	int8_t spd_x, spd_y;
+	int16_t arg_spd = 2000;
+	uint8_t tmp, tmp1;
+	uint8_t check_sum;
+	
 	
 	
 	if(!(data[4] & 0x10)) {
@@ -82,12 +86,25 @@ void send_control_data(void)
 		printf("lu key\n");
 		#endif
 		
+		cmd = 0x20;
+		arg_spd *= -1;
+		tmp = ((uint16_t) arg_spd) >> 8;
+		tmp1 = (uint8_t) arg_spd;
+		check_sum = cmd + tmp + tmp1;
+		uprintf(USART1, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
+		
 		return;
 	} else if(!(data[4] & 0x40)) {
 		// left down key
 		#ifdef DEBUG
 		printf("ld key\n");
 		#endif
+		
+		cmd = 0x20;
+		tmp = ((uint16_t) arg_spd) >> 8;
+		tmp1 = (uint8_t) arg_spd;
+		check_sum = cmd + tmp + tmp1;
+		uprintf(USART1, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
 		
 		return;
 	} else if(!(data[4] & 0x80)) {
@@ -96,12 +113,25 @@ void send_control_data(void)
 		printf("ll key\n");
 		#endif
 		
+		cmd = 0x21;
+		arg_spd *= -1;
+		tmp = ((uint16_t) arg_spd) >> 8;
+		tmp1 = (uint8_t) arg_spd;
+		check_sum = cmd + tmp + tmp1;
+		uprintf(USART1, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
+		
 		return;
 	} else if(!(data[4] & 0x20)) {
 		// left right key
 		#ifdef DEBUG
 		printf("lr key\n");
 		#endif
+		
+		cmd = 0x21;
+		tmp = ((uint16_t) arg_spd) >> 8;
+		tmp1 = (uint8_t) arg_spd;
+		check_sum = cmd + tmp + tmp1;
+		uprintf(USART1, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
 		
 		return;
 	} else if(!(data[5] & 0x10)) {
