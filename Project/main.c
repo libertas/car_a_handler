@@ -21,6 +21,7 @@
 
 #include <stdint.h>
 
+#include "debug.h"
 #include "global.h"
 #include "handler.h"
 
@@ -71,11 +72,15 @@ void send_control_data(void)
 {
 	uint8_t cmd;
 	int8_t spd_x, spd_y;
-	spd_x = 128 - data[6];
-	spd_y = 128 - data[7];
+	spd_x = data[6] - 0x80;
+	spd_y = 0x7f - data[7];
 	
 	cmd = 0x22;  // move_xy_c(int8_t spd_x, int8_t spd_y)
 	uprintf(USART1, "%c%c%c%c", cmd, spd_x, spd_y, cmd + spd_x + spd_y); 
+	
+	#ifdef DEBUG
+	uprintf(USART3, "0x%x\t0x%x\t0x%x\t0x%x\n", (uint8_t)cmd, (uint8_t)spd_x, (uint8_t)spd_y, (uint8_t)(cmd + spd_x + spd_y));
+	#endif
 }
 
 
