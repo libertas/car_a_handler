@@ -171,18 +171,18 @@ void send_control_data(void)
 	} else {
 		r_spd = data[8] - 0x80;
 		
-		if(ABS(r_spd) < HAND_ZERO) {
+		if(ABS(r_spd) > HAND_ZERO) {
 			cmd = 0x10;
 			sprintf(tmp_buf, "%c%c%c", cmd, r_spd, (cmd + r_spd));
 		
 			#ifdef DEBUG
-			printf("0x%x\t0x%x\n", (uint8_t)cmd, (uint8_t)r_spd);
+			printf("cmd:0x%x\tr_spd:0x%x\n", (uint8_t)cmd, (uint8_t)r_spd);
 			#endif
 		} else {
 			spd_x = data[6] - 0x80;
 			spd_y = 0x7f - data[7];
 
-			if(ABS(spd_x) < HAND_ZERO && ABS(spd_y) < HAND_ZERO) {
+			if(ABS(spd_x) > HAND_ZERO || ABS(spd_y) > HAND_ZERO) {
 				cmd = 0x22;  // move_xy_c(int8_t spd_x, int8_t spd_y)
 				sprintf(tmp_buf, "%c%c%c%c", cmd, spd_x, spd_y, cmd + spd_x + spd_y); 
 
@@ -191,7 +191,7 @@ void send_control_data(void)
 				#endif
 			} else {
 				#ifdef DEBUG
-				printf("No cmmand!\n");
+				printf("r_spd:%x\tspd_x:%x\tspd_y:%x\n", (uint8_t)r_spd, (uint8_t)spd_x, (uint8_t)spd_y);
 				#endif
 			}
 		}
