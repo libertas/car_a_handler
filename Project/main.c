@@ -74,7 +74,7 @@ void send_control_data(void)
 {
 	uint8_t cmd;
 	int8_t spd_x, spd_y;
-	int16_t arg_spd = 2000;
+	int16_t arg_spd = 500;
 	uint8_t tmp, tmp1;
 	uint8_t check_sum;
 	
@@ -205,7 +205,6 @@ void send_control_data(void)
 	} else {
 		#ifdef DEBUG
 		printf("no key\n");
-		printf("%x\n", data[4]);
 		#endif
 	}
 	
