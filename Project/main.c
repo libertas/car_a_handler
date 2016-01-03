@@ -55,7 +55,7 @@ void send_control_data(void)
 {
 	uint8_t cmd;
 	int8_t spd_x, spd_y, r_spd;
-	const int8_t spd = 100;
+	const int8_t spd = 50;
 	uint8_t tmp, tmp1;
 	uint8_t check_sum;
 	uint8_t i;
@@ -159,6 +159,12 @@ void send_control_data(void)
 		#ifdef DEBUG
 		printf("r1 key\n");
 		#endif	
+		
+		// stop_all()
+		cmd = 0x01;
+		check_sum = cmd;
+		tmp_buf[0] = cmd;
+		tmp_buf[1] = check_sum;
 
 	} else if(!(data[5] & 0x02)) {
 		#ifdef DEBUG
