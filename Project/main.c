@@ -51,6 +51,41 @@ uint8_t cmdcmp(const uint8_t *c0, const uint8_t *c1)
 	return 0;
 }
 
+void send_cmd(void)
+{
+	uint8_t i;
+
+	// we don't use command 0x00
+	if(tmp_buf[0] == 0x00)
+		return;
+
+	if(cmdcmp(tmp_buf, cmd_buf) == 0) {
+		if(CMD_TIMES <= cmd_counter) {
+			for(i = 0; i < ((cmd_buf[0] & 0xf0) >> 4) + 2; i++) {
+				while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
+				USART_SendData(USART1, (uint8_t) cmd_buf[i]);
+				tmp_buf[i] = 0;
+			}
+			cmd_counter = 0;
+			
+			#ifdef DEBUG
+			for(i = 0; i < ((cmd_buf[0] & 0xf0) >> 4) + 2; i++) {
+				printf("0x%x\t", cmd_buf[i]);
+			}
+			printf("\n");
+			#endif
+			
+		} else {
+			cmd_counter++;
+		}
+	} else {
+		for(i = 0; i < ((tmp_buf[0] & 0xf0) >> 4) + 2; i++) {
+			cmd_buf[i] = tmp_buf[i];
+		}
+		cmd_counter = 0;
+	}
+}
+
 void send_control_data(void)
 {
 	uint8_t cmd;
@@ -58,7 +93,6 @@ void send_control_data(void)
 	const int8_t spd = 50;
 	uint8_t tmp, tmp1;
 	uint8_t check_sum;
-	uint8_t i;
 
 
 	if(!(data[4] & 0x10)) {
@@ -208,35 +242,7 @@ void send_control_data(void)
 		}
 	}
 
-	// we don't use command 0x00
-	if(tmp_buf[0] == 0x00)
-		return;
-
-	if(cmdcmp(tmp_buf, cmd_buf) == 0) {
-		if(CMD_TIMES <= cmd_counter) {
-			for(i = 0; i < ((cmd_buf[0] & 0xf0) >> 4) + 2; i++) {
-				while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
-				USART_SendData(USART1, (uint8_t) cmd_buf[i]);
-				tmp_buf[i] = 0;
-			}
-			cmd_counter = 0;
-			
-			#ifdef DEBUG
-			for(i = 0; i < ((cmd_buf[0] & 0xf0) >> 4) + 2; i++) {
-				printf("0x%x\t", cmd_buf[i]);
-			}
-			printf("\n");
-			#endif
-			
-		} else {
-			cmd_counter++;
-		}
-	} else {
-		for(i = 0; i < ((tmp_buf[0] & 0xf0) >> 4) + 2; i++) {
-			cmd_buf[i] = tmp_buf[i];
-		}
-		cmd_counter = 0;
-	}
+	send_cmd();
 }
 
 
