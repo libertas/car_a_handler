@@ -208,13 +208,13 @@ void send_control_data(void)
 		if(CMD_TIMES <= cmd_counter) {
 			for(i = 0; i < ((cmd_buf[0] & 0xf0) >> 4) + 2; i++) {
 				USART_SendData(USART1, cmd_buf[i]);
-				cmd_buf[i] = 0;
+				tmp_buf[i] = 0;
 			}
 			cmd_counter = 0;
 			
 			#ifdef DEBUG
-			for(i = 0; i < ((tmp_buf[0] & 0xf0) >> 4) + 2; i++) {
-				printf("0x%x\t", tmp_buf[i]);
+			for(i = 0; i < ((cmd_buf[0] & 0xf0) >> 4) + 2; i++) {
+				printf("0x%x\t", cmd_buf[i]);
 			}
 			printf("\n");
 			#endif
@@ -225,7 +225,6 @@ void send_control_data(void)
 	} else {
 		for(i = 0; i < ((tmp_buf[0] & 0xf0) >> 4) + 2; i++) {
 			cmd_buf[i] = tmp_buf[i];
-			tmp_buf[i] = 0;
 		}
 		cmd_counter = 0;
 	}
