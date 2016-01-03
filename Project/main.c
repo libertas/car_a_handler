@@ -70,6 +70,7 @@ void send_cmd(void)
 			cmd_counter = 0;
 			
 			#ifdef DEBUG
+			printf("sending cmd:");
 			for(i = 0; i < ((cmd_buf[0] & 0xf0) >> 4) + 2; i++) {
 				printf("0x%x\t", cmd_buf[i]);
 			}
