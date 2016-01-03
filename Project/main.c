@@ -21,6 +21,8 @@
 
 #include <stdint.h>
 
+#include "stm32f10x_usart.h"
+
 #include "debug.h"
 #include "global.h"
 #include "handler.h"
@@ -207,7 +209,8 @@ void send_control_data(void)
 	if(cmdcmp(tmp_buf, cmd_buf) == 0) {
 		if(CMD_TIMES <= cmd_counter) {
 			for(i = 0; i < ((cmd_buf[0] & 0xf0) >> 4) + 2; i++) {
-				uprintf(USART1, "%c", cmd_buf[i]);
+				while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
+				USART_SendData(USART1, (uint8_t) cmd_buf[i]);
 				tmp_buf[i] = 0;
 			}
 			cmd_counter = 0;
