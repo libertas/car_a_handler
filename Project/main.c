@@ -20,7 +20,6 @@
 
 
 #include <stdint.h>
-#include <string.h>
 
 #include "stm32f10x_usart.h"
 
@@ -29,7 +28,7 @@
 #include "handler.h"
 
 #define ABS(x) ((x) >= 0? (x): (-1) * (x))
-#define HAND_ZERO 0x0f
+#define HAND_ZERO 0x3f
 #define CMD_TIMES 10
 #define BUF_SIZE 17
 
@@ -226,10 +225,14 @@ void send_control_data(void)
 			spd_y = 0x7f - data[7];
 
 			if(ABS(spd_x) > HAND_ZERO || ABS(spd_y) > HAND_ZERO) {
+				/*
+					These are very buggy.
+				*/
 				cmd = 0x42;
 				tmp_buf[0] = cmd;
-				roll_rad = (float) spd_x / 128 * PI / 2;
-				memcpy(tmp_buf + 1, &roll_rad, 4);
+				roll_rad = (float) spd_x * PI / 256;
+				*(float*)(tmp_buf + 1) = roll_rad;
+				printf("roll!!:%f\n", *((float*)(tmp + 1)));
 				tmp_buf[5] = 0;
 				for(i = 0; i < 5; i++) {
 					tmp_buf[5] += tmp_buf[i];
@@ -238,13 +241,17 @@ void send_control_data(void)
 				
 				cmd = 0x43;
 				tmp_buf[0] = cmd;
-				kowtow_rad = (float) spd_y / 128 * PI / 2;
-				memcpy(tmp_buf + 1, &kowtow_rad, 4);
+				kowtow_rad = (float) spd_y * PI / 256;
+				*(float*)(tmp_buf + 1) = kowtow_rad;
 				tmp_buf[5] = 0;
 				for(i = 0; i < 5; i++) {
 					tmp_buf[5] += tmp_buf[i];
 				}
 				send_cmd();
+				
+				#ifdef DEBUG
+				printf("roll:%d\tkowtow:%d\n", spd_x, spd_y);
+				#endif
 				
 				return;
 			} else {
@@ -286,7 +293,8 @@ int main(void){
 		}
 /*****************这是一条各种外部设备初始化的结束线*************/	
 		TIM_Cmd(TIM2, ENABLE);	 //使能tim2
-		
+
+
 		while(1){
 			while(g_tim2_irq_flg == 0);
 
