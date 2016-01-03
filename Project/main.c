@@ -20,7 +20,6 @@
 
 
 #include <stdint.h>
-#include <string.h>
 
 #include "debug.h"
 #include "global.h"
@@ -29,20 +28,35 @@
 #define ABS(x) ((x) >= 0? (x): (-1) * (x))
 #define HAND_ZERO 0x0f
 #define CMD_TIMES 10
+#define BUF_SIZE 17
 
 int g_tim2_irq_flg;
-char tmp_buf[17] = {0};
-char cmd_buf[17] = {0};
+uint8_t tmp_buf[BUF_SIZE] = {0};
+uint8_t cmd_buf[BUF_SIZE] = {0};
 uint16_t cmd_counter = 0;
 
+float roll_rad = 0, kowtow_rad = 0;
+
+uint8_t cmdcmp(const uint8_t *c0, const uint8_t *c1)
+{
+	uint8_t len = ((c0[0] & 0xf0) >> 4) + 2;
+	uint8_t i;
+	for(i = 0; i < len; i++) {
+		if(c0[i] != c1[i]) {
+			return i + 1;
+		}
+	}
+	return 0;
+}
 
 void send_control_data(void)
 {
 	uint8_t cmd;
 	int8_t spd_x, spd_y, r_spd;
-	int16_t arg_spd = 500;
+	const int8_t spd = 100;
 	uint8_t tmp, tmp1;
 	uint8_t check_sum;
+	uint8_t i;
 
 
 	if(!(data[4] & 0x10)) {
@@ -51,66 +65,56 @@ void send_control_data(void)
 		printf("lu key\n");
 		#endif
 		
-		cmd = 0x20;
-		tmp = ((uint16_t) arg_spd) >> 8;
-		tmp1 = (uint8_t) arg_spd;
+		cmd = 0x22;
+		tmp = 0;
+		tmp1 = spd;
 		check_sum = cmd + tmp + tmp1;
-		sprintf(tmp_buf, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
-		
-		#ifdef DEBUG
-		printf("%x\t%x\t%x\t%x\n", cmd, tmp, tmp1, check_sum);
-		#endif
-
+		tmp_buf[0] = cmd;
+		tmp_buf[1] = tmp;
+		tmp_buf[2] = tmp1;
+		tmp_buf[3] = check_sum;
 	} else if(!(data[4] & 0x40)) {
 		// left down key
 		#ifdef DEBUG
 		printf("ld key\n");
 		#endif
 		
-		cmd = 0x20;
-		arg_spd *= -1;
-		tmp = ((uint16_t) arg_spd) >> 8;
-		tmp1 = (uint8_t) arg_spd;
+		cmd = 0x22;
+		tmp = 0;
+		tmp1 = (uint8_t)(-spd);
 		check_sum = cmd + tmp + tmp1;
-		sprintf(tmp_buf, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
-		
-		#ifdef DEBUG
-		printf("%x\t%x\t%x\t%x\n", cmd, tmp, tmp1, check_sum);
-		#endif
-
+		tmp_buf[0] = cmd;
+		tmp_buf[1] = tmp;
+		tmp_buf[2] = tmp1;
+		tmp_buf[3] = check_sum;
 	} else if(!(data[4] & 0x80)) {
 		// left left key
 		#ifdef DEBUG
 		printf("ll key\n");
 		#endif
 		
-		cmd = 0x21;
-		arg_spd *= -1;
-		tmp = ((uint16_t) arg_spd) >> 8;
-		tmp1 = (uint8_t) arg_spd;
+		cmd = 0x22;
+		tmp = (uint8_t)(-spd);
+		tmp1 = 0;
 		check_sum = cmd + tmp + tmp1;
-		sprintf(tmp_buf, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
-		
-		#ifdef DEBUG
-		printf("%x\t%x\t%x\t%x\n", cmd, tmp, tmp1, check_sum);
-		#endif
-
+		tmp_buf[0] = cmd;
+		tmp_buf[1] = tmp;
+		tmp_buf[2] = tmp1;
+		tmp_buf[3] = check_sum;
 	} else if(!(data[4] & 0x20)) {
 		// left right key
 		#ifdef DEBUG
 		printf("lr key\n");
 		#endif
 		
-		cmd = 0x21;
-		tmp = ((uint16_t) arg_spd) >> 8;
-		tmp1 = (uint8_t) arg_spd;
+		cmd = 0x22;
+		tmp = spd;
+		tmp1 = 0;
 		check_sum = cmd + tmp + tmp1;
-		sprintf(tmp_buf, "%c%c%c%c", cmd, tmp, tmp1, check_sum);
-		
-		#ifdef DEBUG
-		printf("%x\t%x\t%x\t%x\n", cmd, tmp, tmp1, check_sum);
-		#endif
-
+		tmp_buf[0] = cmd;
+		tmp_buf[1] = tmp;
+		tmp_buf[2] = tmp1;
+		tmp_buf[3] = check_sum;
 	} else if(!(data[5] & 0x10)) {
 		// right up key
 		#ifdef DEBUG
@@ -127,14 +131,6 @@ void send_control_data(void)
 		// right left key
 		#ifdef DEBUG
 		printf("rl key\n");
-		#endif
-		
-		cmd = 0x00;
-		check_sum = cmd;
-		sprintf(tmp_buf, "%c%c", cmd, check_sum);
-		
-		#ifdef DEBUG
-		printf("%x\t%x\n", cmd, check_sum);
 		#endif
 
 	} else if(!(data[5] & 0x20)) {
@@ -173,7 +169,9 @@ void send_control_data(void)
 		
 		if(ABS(r_spd) > HAND_ZERO) {
 			cmd = 0x10;
-			sprintf(tmp_buf, "%c%c%c", cmd, r_spd, (cmd + r_spd));
+			tmp_buf[0] = cmd;
+			tmp_buf[1] = r_spd;
+			tmp_buf[2] = cmd + r_spd;
 		
 			#ifdef DEBUG
 			printf("cmd:0x%x\tr_spd:0x%x\n", (uint8_t)cmd, (uint8_t)r_spd);
@@ -183,12 +181,17 @@ void send_control_data(void)
 			spd_y = 0x7f - data[7];
 
 			if(ABS(spd_x) > HAND_ZERO || ABS(spd_y) > HAND_ZERO) {
+				/*
+					This will be used later
+				*/
+				/*
 				cmd = 0x22;  // move_xy_c(int8_t spd_x, int8_t spd_y)
-				sprintf(tmp_buf, "%c%c%c%c", cmd, spd_x, spd_y, cmd + spd_x + spd_y); 
+				snprintf(tmp_buf, 5, "%c%c%c%c", cmd, spd_x, spd_y, cmd + spd_x + spd_y); 
 
 				#ifdef DEBUG
 				printf("0x%x\t0x%x\t0x%x\t0x%x\n", (uint8_t)cmd, (uint8_t)spd_x, (uint8_t)spd_y, (uint8_t)(cmd + spd_x + spd_y));
 				#endif
+				*/
 			} else {
 				#ifdef DEBUG
 				printf("r_spd:%x\tspd_x:%x\tspd_y:%x\n", (uint8_t)r_spd, (uint8_t)spd_x, (uint8_t)spd_y);
@@ -198,15 +201,28 @@ void send_control_data(void)
 	}
 	
 	
-	if(strcmp(cmd_buf, tmp_buf) == 0) {
+	if(cmdcmp(tmp_buf, cmd_buf) == 0) {
 		if(CMD_TIMES <= cmd_counter) {
-			uprintf(USART1, cmd_buf);
+			for(i = 0; i < ((cmd_buf[0] & 0xf0) >> 4) + 2; i++) {
+				USART_SendData(USART1, cmd_buf[i]);
+				cmd_buf[i] = 0;
+			}
 			cmd_counter = 0;
+			
+			#ifdef DEBUG
+			for(i = 0; i < ((tmp_buf[0] & 0xf0) >> 4) + 2; i++) {
+				printf("0x%x\t", tmp_buf[i]);
+			}
+			printf("\n");
+			#endif
+			
 		} else {
 			cmd_counter++;
 		}
 	} else {
-		strcpy(cmd_buf, tmp_buf);
+		for(i = 0; i < ((tmp_buf[0] & 0xf0) >> 4) + 2; i++) {
+			cmd_buf[i] = tmp_buf[i];
+		}
 		cmd_counter = 0;
 	}
 }
