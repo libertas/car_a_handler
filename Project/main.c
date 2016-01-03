@@ -207,7 +207,7 @@ void send_control_data(void)
 	if(cmdcmp(tmp_buf, cmd_buf) == 0) {
 		if(CMD_TIMES <= cmd_counter) {
 			for(i = 0; i < ((cmd_buf[0] & 0xf0) >> 4) + 2; i++) {
-				USART_SendData(USART1, cmd_buf[i]);
+				uprintf(USART1, "%c", cmd_buf[i]);
 				tmp_buf[i] = 0;
 			}
 			cmd_counter = 0;
