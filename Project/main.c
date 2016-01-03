@@ -20,6 +20,7 @@
 
 
 #include <stdint.h>
+#include <string.h>
 
 #include "stm32f10x_usart.h"
 
@@ -88,6 +89,7 @@ void send_cmd(void)
 
 void send_control_data(void)
 {
+	uint16_t i;
 	uint8_t cmd;
 	int8_t spd_x, spd_y, r_spd;
 	const int8_t spd = 50;
@@ -223,17 +225,27 @@ void send_control_data(void)
 			spd_y = 0x7f - data[7];
 
 			if(ABS(spd_x) > HAND_ZERO || ABS(spd_y) > HAND_ZERO) {
-				/*
-					This will be used later
-				*/
-				/*
-				cmd = 0x22;  // move_xy_c(int8_t spd_x, int8_t spd_y)
-				snprintf(tmp_buf, 5, "%c%c%c%c", cmd, spd_x, spd_y, cmd + spd_x + spd_y); 
-
-				#ifdef DEBUG
-				printf("0x%x\t0x%x\t0x%x\t0x%x\n", (uint8_t)cmd, (uint8_t)spd_x, (uint8_t)spd_y, (uint8_t)(cmd + spd_x + spd_y));
-				#endif
-				*/
+				cmd = 0x42;
+				tmp_buf[0] = cmd;
+				roll_rad = (float) spd_x / 128 * PI / 2;
+				memcpy(tmp_buf + 1, &roll_rad, 4);
+				tmp_buf[5] = 0;
+				for(i = 0; i < 5; i++) {
+					tmp_buf[5] += tmp_buf[i];
+				}
+				send_cmd();
+				
+				cmd = 0x43;
+				tmp_buf[0] = cmd;
+				kowtow_rad = (float) spd_y / 128 * PI / 2;
+				memcpy(tmp_buf + 1, &kowtow_rad, 4);
+				tmp_buf[5] = 0;
+				for(i = 0; i < 5; i++) {
+					tmp_buf[5] += tmp_buf[i];
+				}
+				send_cmd();
+				
+				return;
 			} else {
 				#ifdef DEBUG
 				printf("r_spd:%x\tspd_x:%x\tspd_y:%x\n", (uint8_t)r_spd, (uint8_t)spd_x, (uint8_t)spd_y);
