@@ -112,6 +112,7 @@ void send_control_data(void)
 		tmp_buf[1] = tmp;
 		tmp_buf[2] = tmp1;
 		tmp_buf[3] = check_sum;
+		send_cmd();
 	} else if(!(data[4] & 0x40)) {
 		// left down key
 		#ifdef DEBUG
@@ -126,6 +127,7 @@ void send_control_data(void)
 		tmp_buf[1] = tmp;
 		tmp_buf[2] = tmp1;
 		tmp_buf[3] = check_sum;
+		send_cmd();
 	} else if(!(data[4] & 0x80)) {
 		// left left key
 		#ifdef DEBUG
@@ -140,6 +142,7 @@ void send_control_data(void)
 		tmp_buf[1] = tmp;
 		tmp_buf[2] = tmp1;
 		tmp_buf[3] = check_sum;
+		send_cmd();
 	} else if(!(data[4] & 0x20)) {
 		// left right key
 		#ifdef DEBUG
@@ -154,6 +157,7 @@ void send_control_data(void)
 		tmp_buf[1] = tmp;
 		tmp_buf[2] = tmp1;
 		tmp_buf[3] = check_sum;
+		send_cmd();
 	} else if(!(data[5] & 0x10)) {
 		// right up key
 		#ifdef DEBUG
@@ -202,6 +206,7 @@ void send_control_data(void)
 		check_sum = cmd;
 		tmp_buf[0] = cmd;
 		tmp_buf[1] = check_sum;
+		send_cmd();
 
 	} else if(!(data[5] & 0x02)) {
 		#ifdef DEBUG
@@ -217,6 +222,7 @@ void send_control_data(void)
 			tmp_buf[0] = cmd;
 			tmp_buf[1] = r_spd;
 			tmp_buf[2] = cmd + r_spd;
+			send_cmd();
 		
 			#ifdef DEBUG
 			printf("cmd:0x%x\tr_spd:0x%x\n", (uint8_t)cmd, (uint8_t)r_spd);
@@ -232,10 +238,6 @@ void send_control_data(void)
 				cmd = 0x42;
 				tmp_buf[0] = cmd;
 				roll_rad = (float) spd_x * PI / 256;
-				
-				for(i = 0; i < 4; i++) {
-					tmp_buf[i + 1] = 0;
-				}
 				
 				memcpy(tmp_buf + 1, &roll_rad, 4);
 				
@@ -255,7 +257,7 @@ void send_control_data(void)
 				cmd = 0x43;
 				tmp_buf[0] = cmd;
 				kowtow_rad = (float) spd_y * PI / 256;
-				*(float*)(tmp_buf + 1) = kowtow_rad;
+				memcpy(tmp_buf + 1, &kowtow_rad, 4);
 				tmp_buf[5] = 0;
 				for(i = 0; i < 5; i++) {
 					tmp_buf[5] += tmp_buf[i];
@@ -274,8 +276,6 @@ void send_control_data(void)
 			}
 		}
 	}
-
-	send_cmd();
 }
 
 
