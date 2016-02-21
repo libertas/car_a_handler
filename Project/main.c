@@ -20,6 +20,7 @@
 
 
 #include <stdint.h>
+#include <string.h>
 
 #include "stm32f10x_usart.h"
 
@@ -231,8 +232,20 @@ void send_control_data(void)
 				cmd = 0x42;
 				tmp_buf[0] = cmd;
 				roll_rad = (float) spd_x * PI / 256;
-				*(float*)(tmp_buf + 1) = roll_rad;
-				printf("roll!!:%f\n", *((float*)(tmp + 1)));
+				
+				for(i = 0; i < 4; i++) {
+					tmp_buf[i + 1] = 0;
+				}
+				
+				memcpy(tmp_buf + 1, &roll_rad, 4);
+				
+				#ifdef DEBUG_FLOAT
+				printf("roll!!:%f\n", roll_rad);
+				for(i = 0; i < 4; i++) {
+					printf("%d	%x\n", i, tmp_buf[i + 1]);
+				}
+				#endif
+
 				tmp_buf[5] = 0;
 				for(i = 0; i < 5; i++) {
 					tmp_buf[5] += tmp_buf[i];
