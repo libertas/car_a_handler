@@ -235,40 +235,38 @@ void send_control_data(void)
 				/*
 					These are very buggy.
 				*/
-				cmd = 0x42;
-				tmp_buf[0] = cmd;
-				roll_rad = (float) spd_x * PI / 256;
+				static uint32_t roll_kowtow_count = 0;
+				roll_kowtow_count++;
 				
-				memcpy(tmp_buf + 1, &roll_rad, 4);
+				// CMD_TIMES + 2 might be a magic number
+				if(0 == roll_kowtow_count / (CMD_TIMES + 2) % 2) {
+					cmd = 0x42;
+					tmp_buf[0] = cmd;
+					roll_rad = (float) spd_x * PI / 256;
 				
-				#ifdef DEBUG_FLOAT
-				printf("roll!!:%f\n", roll_rad);
-				for(i = 0; i < 4; i++) {
-					printf("%d	%x\n", i, tmp_buf[i + 1]);
-				}
-				#endif
+					memcpy(tmp_buf + 1, &roll_rad, 4);
 
-				tmp_buf[5] = 0;
-				for(i = 0; i < 5; i++) {
-					tmp_buf[5] += tmp_buf[i];
+					tmp_buf[5] = 0;
+					for(i = 0; i < 5; i++) {
+						tmp_buf[5] += tmp_buf[i];
+					}
+					send_cmd();
+				} else {
+					cmd = 0x43;
+					tmp_buf[0] = cmd;
+					kowtow_rad = (float) spd_y * PI / 256;
+					memcpy(tmp_buf + 1, &kowtow_rad, 4);
+					tmp_buf[5] = 0;
+					for(i = 0; i < 5; i++) {
+						tmp_buf[5] += tmp_buf[i];
+					}
+					send_cmd();
 				}
-				send_cmd();
-				
-				cmd = 0x43;
-				tmp_buf[0] = cmd;
-				kowtow_rad = (float) spd_y * PI / 256;
-				memcpy(tmp_buf + 1, &kowtow_rad, 4);
-				tmp_buf[5] = 0;
-				for(i = 0; i < 5; i++) {
-					tmp_buf[5] += tmp_buf[i];
-				}
-				send_cmd();
 				
 				#ifdef DEBUG
 				printf("roll:%d\tkowtow:%d\n", spd_x, spd_y);
 				#endif
 				
-				return;
 			} else {
 				#ifdef DEBUG
 				printf("r_spd:%x\tspd_x:%x\tspd_y:%x\n", (uint8_t)r_spd, (uint8_t)spd_x, (uint8_t)spd_y);
