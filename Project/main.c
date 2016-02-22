@@ -164,18 +164,39 @@ void send_control_data(void)
 		printf("ru key\n");
 		#endif
 
+		cmd = 0x12;
+		tmp = 1;
+		check_sum = cmd + tmp;
+		tmp_buf[0] = cmd;
+		tmp_buf[1] = tmp;
+		tmp_buf[2] = check_sum;
+		send_cmd();
 	} else if(!(data[5] & 0x40)) {
 		// right down key
 		#ifdef DEBUG
 		printf("rd key\n");
 		#endif
 
+		cmd = 0x12;
+		tmp = 0xff;
+		check_sum = cmd + tmp;
+		tmp_buf[0] = cmd;
+		tmp_buf[1] = tmp;
+		tmp_buf[2] = check_sum;
+		send_cmd();
 	} else if(!(data[5] & 0x80)) {
 		// right left key
 		#ifdef DEBUG
 		printf("rl key\n");
 		#endif
 
+		cmd = 0x11;
+		tmp = 0xff;
+		check_sum = cmd + tmp;
+		tmp_buf[0] = cmd;
+		tmp_buf[1] = tmp;
+		tmp_buf[2] = check_sum;
+		send_cmd();
 	} else if(!(data[5] & 0x20)) {
 
 		// right right key
@@ -183,6 +204,13 @@ void send_control_data(void)
 		printf("rr key\n");
 		#endif
 
+		cmd = 0x11;
+		tmp = 1;
+		check_sum = cmd + tmp;
+		tmp_buf[0] = cmd;
+		tmp_buf[1] = tmp;
+		tmp_buf[2] = check_sum;
+		send_cmd();
 	} else if(!(data[5] & 0x01)) {
 
 		#ifdef DEBUG
