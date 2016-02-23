@@ -216,12 +216,24 @@ void send_control_data(void)
 		#ifdef DEBUG
 		printf("l2 key\n");
 		#endif
+		
+		cmd = 0x06;
+		check_sum = cmd;
+		tmp_buf[0] = cmd;
+		tmp_buf[1] = check_sum;
+		send_cmd();
 
 	} else if(!(data[5] & 0x04)) {
 
 		#ifdef DEBUG
 		printf("l1 key\n");
 		#endif
+		
+		cmd = 0x04;
+		check_sum = cmd;
+		tmp_buf[0] = cmd;
+		tmp_buf[1] = check_sum;
+		send_cmd();
 
 	} else if(!(data[5] & 0x08)) {
 
