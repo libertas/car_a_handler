@@ -209,7 +209,7 @@ void usart_config(void)
 	USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;  //发送和接受模式
 	USART_Init(USART1, &USART_InitStructure);	 //初始化串口	
 	USART_Cmd(USART1, ENABLE);	  //使能串口
-	USART_ITConfig(USART3,USART_IT_RXNE, ENABLE);
+	USART_ITConfig(USART1,USART_IT_RXNE, ENABLE);
 	
 	//串口2
 	USART_InitStructure.USART_BaudRate = 115200; 	   //设置波特率
