@@ -217,7 +217,7 @@ void send_control_data(void)
 		printf("l2 key\n");
 		#endif
 		
-		cmd = 0x06;
+		cmd = 0x08;
 		check_sum = cmd;
 		tmp_buf[0] = cmd;
 		tmp_buf[1] = check_sum;
@@ -229,7 +229,7 @@ void send_control_data(void)
 		printf("l1 key\n");
 		#endif
 		
-		cmd = 0x04;
+		cmd = 0x07;
 		check_sum = cmd;
 		tmp_buf[0] = cmd;
 		tmp_buf[1] = check_sum;
