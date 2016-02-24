@@ -24,6 +24,7 @@
 
 #include "stm32f10x_usart.h"
 
+#include "clock.h"
 #include "debug.h"
 #include "global.h"
 #include "handler.h"
@@ -34,57 +35,31 @@
 #define BUF_SIZE 17
 
 int g_tim2_irq_flg;
-uint8_t tmp_buf[BUF_SIZE] = {0};
 uint8_t cmd_buf[BUF_SIZE] = {0};
-uint16_t cmd_counter = 0;
 
 float roll_rad = 0, kowtow_rad = 0;
 
-uint8_t cmdcmp(const uint8_t *c0, const uint8_t *c1)
-{
-	uint8_t len = ((c0[0] & 0xf0) >> 4) + 2;
-	uint8_t i;
-	for(i = 0; i < len; i++) {
-		if(c0[i] != c1[i]) {
-			return i + 1;
-		}
-	}
-	return 0;
-}
 
 void send_cmd(void)
 {
 	uint8_t i;
 
 	// we don't use command 0x00
-	if(tmp_buf[0] == 0x00)
+	if(cmd_buf[0] == 0x00)
 		return;
 
-	if(cmdcmp(tmp_buf, cmd_buf) == 0) {
-		if(CMD_TIMES <= cmd_counter) {
-			for(i = 0; i < ((cmd_buf[0] & 0xf0) >> 4) + 2; i++) {
-				while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
-				USART_SendData(USART1, (uint8_t) cmd_buf[i]);
-				tmp_buf[i] = 0;
-			}
-			cmd_counter = 0;
-			
-			#ifdef DEBUG
-			printf("sending cmd:");
-			for(i = 0; i < ((cmd_buf[0] & 0xf0) >> 4) + 2; i++) {
-				printf("0x%x\t", cmd_buf[i]);
-			}
-			printf("\n");
-			#endif
-			
-		} else {
-			cmd_counter++;
-		}
-	} else {
-		for(i = 0; i < ((tmp_buf[0] & 0xf0) >> 4) + 2; i++) {
-			cmd_buf[i] = tmp_buf[i];
-		}
-		cmd_counter = 0;
+	#ifdef DEBUG
+	printf("sending cmd:");
+	for(i = 0; i < ((cmd_buf[0] & 0xf0) >> 4) + 2; i++) {
+		printf("0x%x\t", cmd_buf[i]);
+	}
+	printf("\n");
+	#endif
+
+	for(i = 0; i < ((cmd_buf[0] & 0xf0) >> 4) + 2; i++) {
+		while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
+		USART_SendData(USART1, (uint8_t) cmd_buf[i]);
+		cmd_buf[i] = 0;
 	}
 }
 
@@ -98,22 +73,31 @@ void send_control_data(void)
 	uint8_t check_sum;
 
 
-	if(!(data[4] & 0x10)) {
+	for(;!(data[4] & 0x10);) {
 		// left up key
 		#ifdef DEBUG
 		printf("lu key\n");
 		#endif
+		static uint8_t lu_count;
+		lu_count++;
+		if(lu_count <= CMD_TIMES)
+			break;
+		
+		lu_count = 0;
 		
 		cmd = 0x22;
 		tmp = 0;
 		tmp1 = spd;
 		check_sum = cmd + tmp + tmp1;
-		tmp_buf[0] = cmd;
-		tmp_buf[1] = tmp;
-		tmp_buf[2] = tmp1;
-		tmp_buf[3] = check_sum;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = tmp;
+		cmd_buf[2] = tmp1;
+		cmd_buf[3] = check_sum;
 		send_cmd();
-	} else if(!(data[4] & 0x40)) {
+		break;
+	}
+	
+	for(;!(data[4] & 0x40);) {
 		// left down key
 		#ifdef DEBUG
 		printf("ld key\n");
@@ -123,12 +107,15 @@ void send_control_data(void)
 		tmp = 0;
 		tmp1 = (uint8_t)(-spd);
 		check_sum = cmd + tmp + tmp1;
-		tmp_buf[0] = cmd;
-		tmp_buf[1] = tmp;
-		tmp_buf[2] = tmp1;
-		tmp_buf[3] = check_sum;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = tmp;
+		cmd_buf[2] = tmp1;
+		cmd_buf[3] = check_sum;
 		send_cmd();
-	} else if(!(data[4] & 0x80)) {
+		break;
+	}
+	
+	for(;!(data[4] & 0x80);) {
 		// left left key
 		#ifdef DEBUG
 		printf("ll key\n");
@@ -138,12 +125,15 @@ void send_control_data(void)
 		tmp = (uint8_t)(-spd);
 		tmp1 = 0;
 		check_sum = cmd + tmp + tmp1;
-		tmp_buf[0] = cmd;
-		tmp_buf[1] = tmp;
-		tmp_buf[2] = tmp1;
-		tmp_buf[3] = check_sum;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = tmp;
+		cmd_buf[2] = tmp1;
+		cmd_buf[3] = check_sum;
 		send_cmd();
-	} else if(!(data[4] & 0x20)) {
+		break;
+	}
+	
+	for(;!(data[4] & 0x20);) {
 		// left right key
 		#ifdef DEBUG
 		printf("lr key\n");
@@ -153,12 +143,15 @@ void send_control_data(void)
 		tmp = spd;
 		tmp1 = 0;
 		check_sum = cmd + tmp + tmp1;
-		tmp_buf[0] = cmd;
-		tmp_buf[1] = tmp;
-		tmp_buf[2] = tmp1;
-		tmp_buf[3] = check_sum;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = tmp;
+		cmd_buf[2] = tmp1;
+		cmd_buf[3] = check_sum;
 		send_cmd();
-	} else if(!(data[5] & 0x10)) {
+		break;
+	}
+	
+	for(;!(data[5] & 0x10);) {
 		// right up key
 		#ifdef DEBUG
 		printf("ru key\n");
@@ -167,11 +160,14 @@ void send_control_data(void)
 		cmd = 0x12;
 		tmp = 1;
 		check_sum = cmd + tmp;
-		tmp_buf[0] = cmd;
-		tmp_buf[1] = tmp;
-		tmp_buf[2] = check_sum;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = tmp;
+		cmd_buf[2] = check_sum;
 		send_cmd();
-	} else if(!(data[5] & 0x40)) {
+		break;
+	}
+	
+	for(;!(data[5] & 0x40);) {
 		// right down key
 		#ifdef DEBUG
 		printf("rd key\n");
@@ -180,11 +176,14 @@ void send_control_data(void)
 		cmd = 0x12;
 		tmp = 0xff;
 		check_sum = cmd + tmp;
-		tmp_buf[0] = cmd;
-		tmp_buf[1] = tmp;
-		tmp_buf[2] = check_sum;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = tmp;
+		cmd_buf[2] = check_sum;
 		send_cmd();
-	} else if(!(data[5] & 0x80)) {
+		break;
+	}
+	
+	for(;!(data[5] & 0x80);) {
 		// right left key
 		#ifdef DEBUG
 		printf("rl key\n");
@@ -193,11 +192,14 @@ void send_control_data(void)
 		cmd = 0x11;
 		tmp = 0xff;
 		check_sum = cmd + tmp;
-		tmp_buf[0] = cmd;
-		tmp_buf[1] = tmp;
-		tmp_buf[2] = check_sum;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = tmp;
+		cmd_buf[2] = check_sum;
 		send_cmd();
-	} else if(!(data[5] & 0x20)) {
+		break;
+	}
+	
+	for(;!(data[5] & 0x20);) {
 
 		// right right key
 		#ifdef DEBUG
@@ -207,11 +209,14 @@ void send_control_data(void)
 		cmd = 0x11;
 		tmp = 1;
 		check_sum = cmd + tmp;
-		tmp_buf[0] = cmd;
-		tmp_buf[1] = tmp;
-		tmp_buf[2] = check_sum;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = tmp;
+		cmd_buf[2] = check_sum;
 		send_cmd();
-	} else if(!(data[5] & 0x01)) {
+		break;
+	}
+	
+	for(;!(data[5] & 0x01);) {
 
 		#ifdef DEBUG
 		printf("l2 key\n");
@@ -219,11 +224,13 @@ void send_control_data(void)
 		
 		cmd = 0x08;
 		check_sum = cmd;
-		tmp_buf[0] = cmd;
-		tmp_buf[1] = check_sum;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = check_sum;
 		send_cmd();
-
-	} else if(!(data[5] & 0x04)) {
+		break;
+	}
+	
+	for(;!(data[5] & 0x04);) {
 
 		#ifdef DEBUG
 		printf("l1 key\n");
@@ -231,11 +238,13 @@ void send_control_data(void)
 		
 		cmd = 0x07;
 		check_sum = cmd;
-		tmp_buf[0] = cmd;
-		tmp_buf[1] = check_sum;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = check_sum;
 		send_cmd();
-
-	} else if(!(data[5] & 0x08)) {
+		break;
+	}
+	
+	for(;!(data[5] & 0x08);) {
 
 		#ifdef DEBUG
 		printf("r1 key\n");
@@ -244,24 +253,28 @@ void send_control_data(void)
 		// stop_all()
 		cmd = 0x01;
 		check_sum = cmd;
-		tmp_buf[0] = cmd;
-		tmp_buf[1] = check_sum;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = check_sum;
 		send_cmd();
-
-	} else if(!(data[5] & 0x02)) {
+		break;
+	}
+	
+	for(;!(data[5] & 0x02);) {
 		#ifdef DEBUG
 		printf("r2 key\n");
 		#endif
 		
-
-	} else {
+		break;
+	}
+	
+	{
 		r_spd = data[8] - 0x80;
 		
 		if(ABS(r_spd) > HAND_ZERO) {
 			cmd = 0x10;
-			tmp_buf[0] = cmd;
-			tmp_buf[1] = r_spd;
-			tmp_buf[2] = cmd + r_spd;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = r_spd;
+			cmd_buf[2] = cmd + r_spd;
 			send_cmd();
 		
 			#ifdef DEBUG
@@ -281,24 +294,24 @@ void send_control_data(void)
 				// CMD_TIMES + 2 might be a magic number
 				if(0 == roll_kowtow_count / (CMD_TIMES + 2) % 2) {
 					cmd = 0x42;
-					tmp_buf[0] = cmd;
+					cmd_buf[0] = cmd;
 					roll_rad = (float) spd_x * PI / 256;
 				
-					memcpy(tmp_buf + 1, &roll_rad, 4);
+					memcpy(cmd_buf + 1, &roll_rad, 4);
 
-					tmp_buf[5] = 0;
+					cmd_buf[5] = 0;
 					for(i = 0; i < 5; i++) {
-						tmp_buf[5] += tmp_buf[i];
+						cmd_buf[5] += cmd_buf[i];
 					}
 					send_cmd();
 				} else {
 					cmd = 0x43;
-					tmp_buf[0] = cmd;
+					cmd_buf[0] = cmd;
 					kowtow_rad = (float) spd_y * PI / 256;
-					memcpy(tmp_buf + 1, &kowtow_rad, 4);
-					tmp_buf[5] = 0;
+					memcpy(cmd_buf + 1, &kowtow_rad, 4);
+					cmd_buf[5] = 0;
 					for(i = 0; i < 5; i++) {
-						tmp_buf[5] += tmp_buf[i];
+						cmd_buf[5] += cmd_buf[i];
 					}
 					send_cmd();
 				}
@@ -326,7 +339,8 @@ int main(void){
 	
 	
 /****************这是一条芯片各种配置的起始线**********************/
-  	rcc_config();  //配置时钟，，，在函数里边，调用system_clk_set()函数来配置系统时钟
+		systick_config();
+		rcc_config();  //配置时钟，，，在函数里边，调用system_clk_set()函数来配置系统时钟
 		gpio_config();  //配置GPIO
 		tim2_config(); //使用定时器2，它产生的中断用来对手柄数据进行轮询....tim2先配置好，但不使能那么快，初始化手柄之后再使能
 		usart_config();   
