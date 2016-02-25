@@ -68,7 +68,6 @@ void send_cmd(void)
 
 void send_control_data(void)
 {
-	uint16_t i;
 	uint8_t cmd;
 	int8_t spd_x, spd_y, r_spd;
 	const int8_t spd = 50;
@@ -87,16 +86,7 @@ void send_control_data(void)
 			break;
 		
 		lu_count = 0;
-		
-		cmd = 0x22;
-		tmp = 0;
-		tmp1 = spd;
-		check_sum = cmd + tmp + tmp1;
-		cmd_buf[0] = cmd;
-		cmd_buf[1] = tmp;
-		cmd_buf[2] = tmp1;
-		cmd_buf[3] = check_sum;
-		send_cmd();
+
 		break;
 	}
 	
@@ -111,16 +101,7 @@ void send_control_data(void)
 			break;
 		
 		ld_count = 0;
-		
-		cmd = 0x22;
-		tmp = 0;
-		tmp1 = (uint8_t)(-spd);
-		check_sum = cmd + tmp + tmp1;
-		cmd_buf[0] = cmd;
-		cmd_buf[1] = tmp;
-		cmd_buf[2] = tmp1;
-		cmd_buf[3] = check_sum;
-		send_cmd();
+
 		break;
 	}
 	
@@ -136,15 +117,6 @@ void send_control_data(void)
 		
 		ll_count = 0;
 		
-		cmd = 0x22;
-		tmp = (uint8_t)(-spd);
-		tmp1 = 0;
-		check_sum = cmd + tmp + tmp1;
-		cmd_buf[0] = cmd;
-		cmd_buf[1] = tmp;
-		cmd_buf[2] = tmp1;
-		cmd_buf[3] = check_sum;
-		send_cmd();
 		break;
 	}
 	
@@ -160,15 +132,7 @@ void send_control_data(void)
 		
 		lr_count = 0;
 		
-		cmd = 0x22;
-		tmp = spd;
-		tmp1 = 0;
-		check_sum = cmd + tmp + tmp1;
-		cmd_buf[0] = cmd;
-		cmd_buf[1] = tmp;
-		cmd_buf[2] = tmp1;
-		cmd_buf[3] = check_sum;
-		send_cmd();
+		
 		break;
 	}
 	
@@ -361,37 +325,57 @@ void send_control_data(void)
 			spd_y = 0x7f - data[7];
 
 			if(ABS(spd_x) > HAND_ZERO || ABS(spd_y) > HAND_ZERO) {
-				static uint32_t roll_kowtow_count = 0;
-				roll_kowtow_count++;
+				static uint8_t move_count = 0;
+				move_count++;
+				if(move_count < CMD_TIMES)
+					return;
 				
-				// CMD_TIMES + 2 might be a magic number
-				if(0 == roll_kowtow_count / (CMD_TIMES + 2) % 2) {
-					cmd = 0x42;
+				move_count = 0;
+				
+				if(ABS(spd_x) > ABS(spd_y)) {
+					
+					#ifdef DEBUG
+					printf("spd_x = %d > spd_y = %d\n", spd_x, spd_y);
+					#endif
+					
+					cmd = 0x22;
+					
+					if(spd_x > 0)
+						tmp = spd;
+					else
+						tmp = (uint8_t)(-spd);
+					
+					tmp1 = 0;
+					check_sum = cmd + tmp + tmp1;
 					cmd_buf[0] = cmd;
-					roll_rad = (float) spd_x * PI / 256;
-				
-					memcpy(cmd_buf + 1, &roll_rad, 4);
-
-					cmd_buf[5] = 0;
-					for(i = 0; i < 5; i++) {
-						cmd_buf[5] += cmd_buf[i];
-					}
+					cmd_buf[1] = tmp;
+					cmd_buf[2] = tmp1;
+					cmd_buf[3] = check_sum;
 					send_cmd();
+					
 				} else {
-					cmd = 0x43;
+					
+					#ifdef DEBUG
+					printf("spd_x = %d <= spd_y = %d\n", spd_x, spd_y);
+					#endif
+					
+					cmd = 0x22;
+					tmp = 0;
+					
+					if(spd_y > 0)
+						tmp1 = spd;
+					else
+						tmp1 = (uint8_t)(-spd);
+					
+					check_sum = cmd + tmp + tmp1;
 					cmd_buf[0] = cmd;
-					kowtow_rad = (float) spd_y * PI / 256;
-					memcpy(cmd_buf + 1, &kowtow_rad, 4);
-					cmd_buf[5] = 0;
-					for(i = 0; i < 5; i++) {
-						cmd_buf[5] += cmd_buf[i];
-					}
+					cmd_buf[1] = tmp;
+					cmd_buf[2] = tmp1;
+					cmd_buf[3] = check_sum;
 					send_cmd();
 				}
 				
-				#ifdef DEBUG
-				printf("roll:%d\tkowtow:%d\n", spd_x, spd_y);
-				#endif
+				send_cmd();
 				
 			} else {
 				#ifdef DEBUG
