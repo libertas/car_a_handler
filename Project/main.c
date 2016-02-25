@@ -317,12 +317,18 @@ void send_control_data(void)
 		#ifdef DEBUG
 		printf("r2 key\n");
 		#endif
-		static uint8_t r2_count;
+		static uint32_t r2_count;
 		r2_count++;
-		if(r2_count < CMD_TIMES)
+		if(r2_count < CMD_TIMES * 100)
 			break;
 		
 		r2_count = 0;
+		
+		cmd = 0x0a;
+		check_sum = cmd;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = check_sum;
+		send_cmd();
 		
 		break;
 	}
