@@ -335,11 +335,18 @@ void send_control_data(void)
 		
 		break;
 	}
-	/*
+
 	{
 		r_spd = data[8] - 0x80;
 		
 		if(ABS(r_spd) > HAND_ZERO) {
+			static uint8_t rotate_count;
+			rotate_count++;
+			if(rotate_count < CMD_TIMES)
+				return;
+
+			rotate_count = 0;
+
 			cmd = 0x10;
 			cmd_buf[0] = cmd;
 			cmd_buf[1] = r_spd;
@@ -393,7 +400,6 @@ void send_control_data(void)
 			}
 		}
 	}
-	*/
 }
 
 
