@@ -86,6 +86,12 @@ void send_control_data(void)
 			break;
 		
 		lu_count = 0;
+		
+		cmd = 0x02;
+		check_sum = cmd;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = check_sum;
+		send_cmd();
 
 		break;
 	}
@@ -101,6 +107,12 @@ void send_control_data(void)
 			break;
 		
 		ld_count = 0;
+		
+		cmd = 0x09;
+		check_sum = cmd;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = check_sum;
+		send_cmd();
 
 		break;
 	}
@@ -117,6 +129,14 @@ void send_control_data(void)
 		
 		ll_count = 0;
 		
+		cmd = 0x13;
+		tmp = 0x00
+		check_sum = cmd + tmp;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = tmp;
+		cmd_buf[2] = check_sum;
+		send_cmd();
+		
 		break;
 	}
 	
@@ -132,6 +152,13 @@ void send_control_data(void)
 		
 		lr_count = 0;
 		
+		cmd = 0x13;
+		tmp = 0x01
+		check_sum = cmd + tmp;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = tmp;
+		cmd_buf[2] = check_sum;
+		send_cmd();
 		
 		break;
 	}
