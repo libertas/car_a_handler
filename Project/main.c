@@ -43,20 +43,23 @@ float roll_rad = 0, kowtow_rad = 0;
 void send_cmd(void)
 {
 	uint8_t i;
+	uint8_t cmd_len;
 
 	// we don't use command 0x00
 	if(cmd_buf[0] == 0x00)
 		return;
+	
+	cmd_len = ((cmd_buf[0] & 0xf0) >> 4) + 2;
 
 	#ifdef DEBUG
 	printf("sending cmd:");
-	for(i = 0; i < ((cmd_buf[0] & 0xf0) >> 4) + 2; i++) {
+	for(i = 0; i < cmd_len; i++) {
 		printf("0x%x\t", cmd_buf[i]);
 	}
 	printf("\n");
 	#endif
 
-	for(i = 0; i < ((cmd_buf[0] & 0xf0) >> 4) + 2; i++) {
+	for(i = 0; i < cmd_len; i++) {
 		while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
 		USART_SendData(USART1, (uint8_t) cmd_buf[i]);
 		cmd_buf[i] = 0;
@@ -80,7 +83,7 @@ void send_control_data(void)
 		#endif
 		static uint8_t lu_count;
 		lu_count++;
-		if(lu_count <= CMD_TIMES)
+		if(lu_count < CMD_TIMES)
 			break;
 		
 		lu_count = 0;
@@ -102,6 +105,12 @@ void send_control_data(void)
 		#ifdef DEBUG
 		printf("ld key\n");
 		#endif
+		static uint8_t ld_count;
+		ld_count++;
+		if(ld_count < CMD_TIMES)
+			break;
+		
+		ld_count = 0;
 		
 		cmd = 0x22;
 		tmp = 0;
@@ -120,6 +129,12 @@ void send_control_data(void)
 		#ifdef DEBUG
 		printf("ll key\n");
 		#endif
+		static uint8_t ll_count;
+		ll_count++;
+		if(ll_count < CMD_TIMES)
+			break;
+		
+		ll_count = 0;
 		
 		cmd = 0x22;
 		tmp = (uint8_t)(-spd);
@@ -138,6 +153,12 @@ void send_control_data(void)
 		#ifdef DEBUG
 		printf("lr key\n");
 		#endif
+		static uint8_t lr_count;
+		lr_count++;
+		if(lr_count < CMD_TIMES)
+			break;
+		
+		lr_count = 0;
 		
 		cmd = 0x22;
 		tmp = spd;
@@ -156,6 +177,12 @@ void send_control_data(void)
 		#ifdef DEBUG
 		printf("ru key\n");
 		#endif
+		static uint8_t ru_count;
+		ru_count++;
+		if(ru_count < CMD_TIMES)
+			break;
+		
+		ru_count = 0;
 
 		cmd = 0x12;
 		tmp = 1;
@@ -172,6 +199,12 @@ void send_control_data(void)
 		#ifdef DEBUG
 		printf("rd key\n");
 		#endif
+		static uint8_t rd_count;
+		rd_count++;
+		if(rd_count < CMD_TIMES)
+			break;
+		
+		rd_count = 0;
 
 		cmd = 0x12;
 		tmp = 0xff;
@@ -188,6 +221,12 @@ void send_control_data(void)
 		#ifdef DEBUG
 		printf("rl key\n");
 		#endif
+		static uint8_t rl_count;
+		rl_count++;
+		if(rl_count < CMD_TIMES)
+			break;
+		
+		rl_count = 0;
 
 		cmd = 0x11;
 		tmp = 0xff;
@@ -205,6 +244,12 @@ void send_control_data(void)
 		#ifdef DEBUG
 		printf("rr key\n");
 		#endif
+		static uint8_t rr_count;
+		rr_count++;
+		if(rr_count < CMD_TIMES)
+			break;
+		
+		rr_count = 0;
 
 		cmd = 0x11;
 		tmp = 1;
@@ -221,6 +266,12 @@ void send_control_data(void)
 		#ifdef DEBUG
 		printf("l2 key\n");
 		#endif
+		static uint8_t l2_count;
+		l2_count++;
+		if(l2_count < CMD_TIMES)
+			break;
+		
+		l2_count = 0;
 		
 		cmd = 0x08;
 		check_sum = cmd;
@@ -235,6 +286,12 @@ void send_control_data(void)
 		#ifdef DEBUG
 		printf("l1 key\n");
 		#endif
+		static uint8_t l1_count;
+		l1_count++;
+		if(l1_count < CMD_TIMES)
+			break;
+		
+		l1_count = 0;
 		
 		cmd = 0x07;
 		check_sum = cmd;
@@ -249,6 +306,12 @@ void send_control_data(void)
 		#ifdef DEBUG
 		printf("r1 key\n");
 		#endif	
+		static uint8_t r1_count;
+		r1_count++;
+		if(r1_count < CMD_TIMES)
+			break;
+		
+		r1_count = 0;
 		
 		// stop_all()
 		cmd = 0x01;
@@ -263,10 +326,16 @@ void send_control_data(void)
 		#ifdef DEBUG
 		printf("r2 key\n");
 		#endif
+		static uint8_t r2_count;
+		r2_count++;
+		if(r2_count < CMD_TIMES)
+			break;
+		
+		r2_count = 0;
 		
 		break;
 	}
-	
+	/*
 	{
 		r_spd = data[8] - 0x80;
 		
@@ -285,9 +354,6 @@ void send_control_data(void)
 			spd_y = 0x7f - data[7];
 
 			if(ABS(spd_x) > HAND_ZERO || ABS(spd_y) > HAND_ZERO) {
-				/*
-					These are very buggy.
-				*/
 				static uint32_t roll_kowtow_count = 0;
 				roll_kowtow_count++;
 				
@@ -327,6 +393,7 @@ void send_control_data(void)
 			}
 		}
 	}
+	*/
 }
 
 
