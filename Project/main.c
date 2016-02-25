@@ -130,7 +130,7 @@ void send_control_data(void)
 		ll_count = 0;
 		
 		cmd = 0x13;
-		tmp = 0x00
+		tmp = 0x00;
 		check_sum = cmd + tmp;
 		cmd_buf[0] = cmd;
 		cmd_buf[1] = tmp;
@@ -153,7 +153,7 @@ void send_control_data(void)
 		lr_count = 0;
 		
 		cmd = 0x13;
-		tmp = 0x01
+		tmp = 0x01;
 		check_sum = cmd + tmp;
 		cmd_buf[0] = cmd;
 		cmd_buf[1] = tmp;
