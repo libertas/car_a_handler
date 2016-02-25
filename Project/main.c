@@ -319,7 +319,7 @@ void send_control_data(void)
 		#endif
 		static uint32_t r2_count;
 		r2_count++;
-		if(r2_count < CMD_TIMES * 100)
+		if(r2_count < CMD_TIMES)
 			break;
 		
 		r2_count = 0;
@@ -329,6 +329,8 @@ void send_control_data(void)
 		cmd_buf[0] = cmd;
 		cmd_buf[1] = check_sum;
 		send_cmd();
+		
+		delay(2000);
 		
 		break;
 	}
