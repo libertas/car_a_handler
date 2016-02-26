@@ -438,6 +438,11 @@
               <FileType>1</FileType>
               <FilePath>..\my_file\clock.c</FilePath>
             </File>
+            <File>
+              <FileName>sending.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\sending.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -607,6 +612,11 @@
               <FileName>clock.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\my_file\clock.h</FilePath>
+            </File>
+            <File>
+              <FileName>sengding.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\sengding.h</FilePath>
             </File>
           </Files>
         </Group>
