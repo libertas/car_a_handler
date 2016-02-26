@@ -5,8 +5,6 @@
 #include "handler.h"
 #include "sending.h"
 
-uint8_t cmd_buf[BUF_SIZE] = {0};
-
 float roll_rad = 0, kowtow_rad = 0;
 
 struct key_t keys[KEYS_NUM] = {0};
@@ -40,7 +38,7 @@ void sending_config(void)
 	keys[R2_KEY].id = 0x02;
 }
 
-void send_cmd(void)
+void send_cmd(uint8_t *cmd_buf)
 {
 	uint8_t i;
 	uint8_t cmd_len;
@@ -64,6 +62,10 @@ void send_cmd(void)
 		USART_SendData(USART1, (uint8_t) cmd_buf[i]);
 		cmd_buf[i] = 0;
 	}
+	
+	for(i = 0; i < KEYS_NUM; i++) {
+		keys[i].pressed_times = 0;
+	}
 }
 
 void check_keys(void)
@@ -81,8 +83,17 @@ void check_keys(void)
 	}
 }
 
+bool isp(struct key_t *k)
+{
+	if(k->pressed_times >= CMD_TIMES)
+		return true;
+	else
+		return false;
+}
+
 void send_control_data(void)
 {
+	uint8_t cmd_buf[BUF_SIZE] = {0};
 	uint8_t cmd;
 	int8_t spd_x, spd_y, r_spd;
 	const int8_t spd = 50;
@@ -92,27 +103,76 @@ void send_control_data(void)
 
 	check_keys();
 	
-	if(keys[L1_KEY].pressed_times > CMD_TIMES &&
-		keys[L2_KEY].pressed_times > CMD_TIMES &&
-		keys[R1_KEY].pressed_times > CMD_TIMES &&
-		keys[R2_KEY].pressed_times > CMD_TIMES) {
+	if(isp(keys + L1_KEY)&&
+		isp(keys + L2_KEY)&&
+		isp(keys + R1_KEY)&&
+		isp(keys + R2_KEY)) {
 			
 			#ifdef DEBUG_KEYS
 			printf("l1 l2 r1 r2 pressed\n");
 			#endif
-			
-			keys[L1_KEY].pressed_times = 0;
-			keys[L2_KEY].pressed_times = 0;
-			keys[R1_KEY].pressed_times = 0;
-			keys[R2_KEY].pressed_times = 0;
 
 			cmd = 0x0a;
 			check_sum = cmd;
 			cmd_buf[0] = cmd;
 			cmd_buf[1] = check_sum;
-			send_cmd();
+			send_cmd(cmd_buf);
 			
 			delay(200);
+	} else if(isp(keys + RR_KEY)) {
+
+			// stop_all()
+			cmd = 0x01;
+			check_sum = cmd;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = check_sum;
+			send_cmd(cmd_buf);
+
+	} else if(isp(keys + L1_KEY)) {
+
+		if(isp(keys + LU_KEY)) {
+			cmd = 0x02;
+			check_sum = cmd;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = check_sum;
+			send_cmd(cmd_buf);
+		} else if(isp(keys + LD_KEY)) {
+			cmd = 0x09;
+			check_sum = cmd;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = check_sum;
+			send_cmd(cmd_buf);
+		} else if(isp(keys + LL_KEY)) {
+			cmd = 0x13;
+			tmp = 0x00;
+			check_sum = cmd + tmp;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = tmp;
+			cmd_buf[2] = check_sum;
+			send_cmd(cmd_buf);
+		} else if(isp(keys + LR_KEY)) {
+			cmd = 0x13;
+			tmp = 0x01;
+			check_sum = cmd + tmp;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = tmp;
+			cmd_buf[2] = check_sum;
+			send_cmd(cmd_buf);
+		} else {
+			keys[L1_KEY].pressed_times = 0;
+		}
+
+	} else {
+
+		static uint8_t loop_times;
+		loop_times++;
+		if(loop_times > CMD_TIMES) {
+			loop_times = 0;
+			for(uint8_t i = 0; i < KEYS_NUM; i++) {
+				keys[i].pressed_times = 0;
+			}
+		}
+
 	}
 
 	{
@@ -130,7 +190,7 @@ void send_control_data(void)
 			cmd_buf[0] = cmd;
 			cmd_buf[1] = r_spd;
 			cmd_buf[2] = cmd + r_spd;
-			send_cmd();
+			send_cmd(cmd_buf);
 		
 			#ifdef DEBUG
 			printf("cmd:0x%x\tr_spd:0x%x\n", (uint8_t)cmd, (uint8_t)r_spd);
@@ -166,7 +226,7 @@ void send_control_data(void)
 					cmd_buf[1] = tmp;
 					cmd_buf[2] = tmp1;
 					cmd_buf[3] = check_sum;
-					send_cmd();
+					send_cmd(cmd_buf);
 					
 				} else {
 					
@@ -187,10 +247,10 @@ void send_control_data(void)
 					cmd_buf[1] = tmp;
 					cmd_buf[2] = tmp1;
 					cmd_buf[3] = check_sum;
-					send_cmd();
+					send_cmd(cmd_buf);
 				}
 				
-				send_cmd();
+				send_cmd(cmd_buf);
 				
 			} else {
 				#ifdef DEBUG
