@@ -1,4 +1,7 @@
+#include <stdio.h>
+
 #include "clock.h"
+#include "debug.h"
 #include "handler.h"
 #include "sending.h"
 
@@ -65,7 +68,7 @@ void send_cmd(void)
 
 void check_keys(void)
 {
-	for(uint8_t i; i < KEYS_NUM; i++) {
+	for(uint8_t i = 0; i < KEYS_NUM; i++) {
 		struct key_t *key = keys + i;
 
 		key->is_pressed = !(data[key->data_pos] & key->id);
@@ -88,6 +91,29 @@ void send_control_data(void)
 
 
 	check_keys();
+	
+	if(keys[L1_KEY].pressed_times > CMD_TIMES &&
+		keys[L2_KEY].pressed_times > CMD_TIMES &&
+		keys[R1_KEY].pressed_times > CMD_TIMES &&
+		keys[R2_KEY].pressed_times > CMD_TIMES) {
+			
+			#ifdef DEBUG_KEYS
+			printf("l1 l2 r1 r2 pressed\n");
+			#endif
+			
+			keys[L1_KEY].pressed_times = 0;
+			keys[L2_KEY].pressed_times = 0;
+			keys[R1_KEY].pressed_times = 0;
+			keys[R2_KEY].pressed_times = 0;
+
+			cmd = 0x0a;
+			check_sum = cmd;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = check_sum;
+			send_cmd();
+			
+			delay(200);
+	}
 
 	{
 		r_spd = data[8] - 0x80;
