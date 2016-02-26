@@ -1,8 +1,11 @@
+#include <stdbool.h>
+
 #define ABS(x) ((x) >= 0? (x): (-1) * (x))
 #define HAND_ZERO 0x3f
 #define CMD_TIMES 10
 #define BUF_SIZE 17
 
+#define KEYS_NUM 12
 
 #define LU_KEY 0
 #define LD_KEY 1
@@ -17,10 +20,10 @@
 #define R1_KEY 10
 #define R2_KEY 11
 
-struct key {
+struct key_t {
 	uint8_t data_pos;
 	uint8_t id;
-	uint8_t status;
+	bool is_pressed;
 	uint16_t pressed_times;
 };
 

@@ -6,7 +6,7 @@ uint8_t cmd_buf[BUF_SIZE] = {0};
 
 float roll_rad = 0, kowtow_rad = 0;
 
-struct key keys[12] = {0};
+struct key_t keys[KEYS_NUM] = {0};
 
 void sending_config(void)
 {
@@ -63,6 +63,21 @@ void send_cmd(void)
 	}
 }
 
+void check_keys(void)
+{
+	for(uint8_t i; i < KEYS_NUM; i++) {
+		struct key_t *key = keys + i;
+
+		key->is_pressed = !(data[key->data_pos] & key->id);
+
+		if(key->is_pressed) {
+			key->pressed_times++;
+		} else {
+			key->is_pressed = 0;
+		}
+	}
+}
+
 void send_control_data(void)
 {
 	uint8_t cmd;
@@ -72,7 +87,7 @@ void send_control_data(void)
 	uint8_t check_sum;
 
 
-	
+	check_keys();
 
 	{
 		r_spd = data[8] - 0x80;
