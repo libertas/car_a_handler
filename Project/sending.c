@@ -6,6 +6,36 @@ uint8_t cmd_buf[BUF_SIZE] = {0};
 
 float roll_rad = 0, kowtow_rad = 0;
 
+struct key keys[12] = {0};
+
+void sending_config(void)
+{
+	keys[LU_KEY].data_pos = 4;
+	keys[LD_KEY].data_pos = 4;
+	keys[LL_KEY].data_pos = 4;
+	keys[LR_KEY].data_pos = 4;
+	keys[RU_KEY].data_pos = 5;
+	keys[RD_KEY].data_pos = 5;
+	keys[RL_KEY].data_pos = 5;
+	keys[RR_KEY].data_pos = 5;
+	keys[L1_KEY].data_pos = 5;
+	keys[L2_KEY].data_pos = 5;
+	keys[R1_KEY].data_pos = 5;
+	keys[R2_KEY].data_pos = 5;
+
+	keys[LU_KEY].id = 0x10;
+	keys[LD_KEY].id = 0x40;
+	keys[LL_KEY].id = 0x80;
+	keys[LR_KEY].id = 0x20;
+	keys[RU_KEY].id = 0x10;
+	keys[RD_KEY].id = 0x40;
+	keys[RL_KEY].id = 0x80;
+	keys[RR_KEY].id = 0x20;
+	keys[L1_KEY].id = 0x04;
+	keys[L2_KEY].id = 0x01;
+	keys[R1_KEY].id = 0x08;
+	keys[R2_KEY].id = 0x02;
+}
 
 void send_cmd(void)
 {
@@ -42,265 +72,7 @@ void send_control_data(void)
 	uint8_t check_sum;
 
 
-	for(;!(data[4] & 0x10);) {
-		// left up key
-		#ifdef DEBUG
-		printf("lu key\n");
-		#endif
-		static uint8_t lu_count;
-		lu_count++;
-		if(lu_count < CMD_TIMES)
-			break;
-		
-		lu_count = 0;
-		
-		cmd = 0x02;
-		check_sum = cmd;
-		cmd_buf[0] = cmd;
-		cmd_buf[1] = check_sum;
-		send_cmd();
-
-		break;
-	}
 	
-	for(;!(data[4] & 0x40);) {
-		// left down key
-		#ifdef DEBUG
-		printf("ld key\n");
-		#endif
-		static uint8_t ld_count;
-		ld_count++;
-		if(ld_count < CMD_TIMES)
-			break;
-		
-		ld_count = 0;
-		
-		cmd = 0x09;
-		check_sum = cmd;
-		cmd_buf[0] = cmd;
-		cmd_buf[1] = check_sum;
-		send_cmd();
-
-		break;
-	}
-	
-	for(;!(data[4] & 0x80);) {
-		// left left key
-		#ifdef DEBUG
-		printf("ll key\n");
-		#endif
-		static uint8_t ll_count;
-		ll_count++;
-		if(ll_count < CMD_TIMES)
-			break;
-		
-		ll_count = 0;
-		
-		cmd = 0x13;
-		tmp = 0x00;
-		check_sum = cmd + tmp;
-		cmd_buf[0] = cmd;
-		cmd_buf[1] = tmp;
-		cmd_buf[2] = check_sum;
-		send_cmd();
-		
-		break;
-	}
-	
-	for(;!(data[4] & 0x20);) {
-		// left right key
-		#ifdef DEBUG
-		printf("lr key\n");
-		#endif
-		static uint8_t lr_count;
-		lr_count++;
-		if(lr_count < CMD_TIMES)
-			break;
-		
-		lr_count = 0;
-		
-		cmd = 0x13;
-		tmp = 0x01;
-		check_sum = cmd + tmp;
-		cmd_buf[0] = cmd;
-		cmd_buf[1] = tmp;
-		cmd_buf[2] = check_sum;
-		send_cmd();
-		
-		break;
-	}
-	
-	for(;!(data[5] & 0x10);) {
-		// right up key
-		#ifdef DEBUG
-		printf("ru key\n");
-		#endif
-		static uint8_t ru_count;
-		ru_count++;
-		if(ru_count < CMD_TIMES)
-			break;
-		
-		ru_count = 0;
-
-		cmd = 0x12;
-		tmp = 1;
-		check_sum = cmd + tmp;
-		cmd_buf[0] = cmd;
-		cmd_buf[1] = tmp;
-		cmd_buf[2] = check_sum;
-		send_cmd();
-		break;
-	}
-	
-	for(;!(data[5] & 0x40);) {
-		// right down key
-		#ifdef DEBUG
-		printf("rd key\n");
-		#endif
-		static uint8_t rd_count;
-		rd_count++;
-		if(rd_count < CMD_TIMES)
-			break;
-		
-		rd_count = 0;
-
-		cmd = 0x12;
-		tmp = 0xff;
-		check_sum = cmd + tmp;
-		cmd_buf[0] = cmd;
-		cmd_buf[1] = tmp;
-		cmd_buf[2] = check_sum;
-		send_cmd();
-		break;
-	}
-	
-	for(;!(data[5] & 0x80);) {
-		// right left key
-		#ifdef DEBUG
-		printf("rl key\n");
-		#endif
-		static uint8_t rl_count;
-		rl_count++;
-		if(rl_count < CMD_TIMES)
-			break;
-		
-		rl_count = 0;
-
-		cmd = 0x11;
-		tmp = 0xff;
-		check_sum = cmd + tmp;
-		cmd_buf[0] = cmd;
-		cmd_buf[1] = tmp;
-		cmd_buf[2] = check_sum;
-		send_cmd();
-		break;
-	}
-	
-	for(;!(data[5] & 0x20);) {
-
-		// right right key
-		#ifdef DEBUG
-		printf("rr key\n");
-		#endif
-		static uint8_t rr_count;
-		rr_count++;
-		if(rr_count < CMD_TIMES)
-			break;
-		
-		rr_count = 0;
-
-		cmd = 0x11;
-		tmp = 1;
-		check_sum = cmd + tmp;
-		cmd_buf[0] = cmd;
-		cmd_buf[1] = tmp;
-		cmd_buf[2] = check_sum;
-		send_cmd();
-		break;
-	}
-	
-	for(;!(data[5] & 0x01);) {
-
-		#ifdef DEBUG
-		printf("l2 key\n");
-		#endif
-		static uint8_t l2_count;
-		l2_count++;
-		if(l2_count < CMD_TIMES)
-			break;
-		
-		l2_count = 0;
-		
-		cmd = 0x08;
-		check_sum = cmd;
-		cmd_buf[0] = cmd;
-		cmd_buf[1] = check_sum;
-		send_cmd();
-		break;
-	}
-	
-	for(;!(data[5] & 0x04);) {
-
-		#ifdef DEBUG
-		printf("l1 key\n");
-		#endif
-		static uint8_t l1_count;
-		l1_count++;
-		if(l1_count < CMD_TIMES)
-			break;
-		
-		l1_count = 0;
-		
-		cmd = 0x07;
-		check_sum = cmd;
-		cmd_buf[0] = cmd;
-		cmd_buf[1] = check_sum;
-		send_cmd();
-		break;
-	}
-	
-	for(;!(data[5] & 0x08);) {
-
-		#ifdef DEBUG
-		printf("r1 key\n");
-		#endif	
-		static uint8_t r1_count;
-		r1_count++;
-		if(r1_count < CMD_TIMES)
-			break;
-		
-		r1_count = 0;
-		
-		// stop_all()
-		cmd = 0x01;
-		check_sum = cmd;
-		cmd_buf[0] = cmd;
-		cmd_buf[1] = check_sum;
-		send_cmd();
-		break;
-	}
-	
-	for(;!(data[5] & 0x02);) {
-		#ifdef DEBUG
-		printf("r2 key\n");
-		#endif
-		static uint32_t r2_count;
-		r2_count++;
-		if(r2_count < CMD_TIMES)
-			break;
-		
-		r2_count = 0;
-		
-		cmd = 0x0a;
-		check_sum = cmd;
-		cmd_buf[0] = cmd;
-		cmd_buf[1] = check_sum;
-		send_cmd();
-		
-		delay(2000);
-		
-		break;
-	}
 
 	{
 		r_spd = data[8] - 0x80;

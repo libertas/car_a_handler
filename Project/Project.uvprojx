@@ -614,9 +614,9 @@
               <FilePath>..\my_file\clock.h</FilePath>
             </File>
             <File>
-              <FileName>sengding.h</FileName>
+              <FileName>sending.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\sengding.h</FilePath>
+              <FilePath>.\sending.h</FilePath>
             </File>
           </Files>
         </Group>

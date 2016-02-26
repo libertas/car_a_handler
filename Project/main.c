@@ -49,6 +49,7 @@ int main(void){
 		usart_config();   
 		nvic_config();  //配置中断
 		spi_config();      //配置SPI，用作手柄
+		sending_config();
 /****************这是一条芯片各种配置的结束线*********************/
 	
 	

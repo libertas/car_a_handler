@@ -729,8 +729,8 @@
       <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\sengding.h</PathWithFileName>
-      <FilenameWithoutPath>sengding.h</FilenameWithoutPath>
+      <PathWithFileName>.\sending.h</PathWithFileName>
+      <FilenameWithoutPath>sending.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
