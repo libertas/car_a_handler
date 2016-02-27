@@ -200,6 +200,45 @@ void send_control_data(void)
 			keys[L2_KEY].pressed_times = 0;
 		}
 
+	} else if(isp(keys + R1_KEY)) {
+
+		if(isp(keys + LU_KEY)) {
+			cmd = 0x14;
+			tmp = 0;
+			check_sum = cmd + tmp;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = tmp;
+			cmd_buf[2] = check_sum;
+			send_cmd(cmd_buf);
+		} else if(isp(keys + LD_KEY)) {
+			cmd = 0x14;
+			tmp = 3;
+			check_sum = cmd + tmp;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = tmp;
+			cmd_buf[2] = check_sum;
+			send_cmd(cmd_buf);
+		} else if(isp(keys + LL_KEY)) {
+			cmd = 0x14;
+			tmp = 2;
+			check_sum = cmd + tmp;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = tmp;
+			cmd_buf[2] = check_sum;
+			send_cmd(cmd_buf);
+		} else if(isp(keys + LR_KEY)){
+			cmd = 0x14;
+			tmp = 1;
+			check_sum = cmd + tmp;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = tmp;
+			cmd_buf[2] = check_sum;
+			send_cmd(cmd_buf);
+			send_cmd(cmd_buf);
+		} else {
+			keys[R1_KEY].pressed_times = 0;
+		}
+
 	} else if(isp(keys + LU_KEY)) {
 		cmd = 0x07;
 		check_sum = cmd;
