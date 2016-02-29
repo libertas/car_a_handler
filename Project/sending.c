@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "clock.h"
 #include "debug.h"
@@ -267,7 +268,7 @@ void send_control_data(void)
 	{
 		r_spd = data[8] - 0x80;
 		
-		if(ABS(r_spd) > HAND_ZERO) {
+		if(abs(r_spd) > HAND_ZERO) {
 			static uint8_t rotate_count;
 			rotate_count++;
 			if(rotate_count < CMD_TIMES)
@@ -288,7 +289,7 @@ void send_control_data(void)
 			spd_x = data[6] - 0x80;
 			spd_y = 0x7f - data[7];
 
-			if(ABS(spd_x) > HAND_ZERO || ABS(spd_y) > HAND_ZERO) {
+			if(abs(spd_x) > HAND_ZERO || abs(spd_y) > HAND_ZERO) {
 				static uint8_t move_count = 0;
 				move_count++;
 				if(move_count < CMD_TIMES)
@@ -296,7 +297,7 @@ void send_control_data(void)
 				
 				move_count = 0;
 				
-				if(ABS(spd_x) > ABS(spd_y)) {
+				if(abs(spd_x) > abs(spd_y)) {
 					
 					#ifdef DEBUG
 					printf("spd_x = %d > spd_y = %d\n", spd_x, spd_y);
