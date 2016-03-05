@@ -205,7 +205,7 @@ void send_control_data(void)
 
 		if(isp(keys + LU_KEY)) {
 			cmd = 0x14;
-			tmp = 0;
+			tmp = 0x00;
 			check_sum = cmd + tmp;
 			cmd_buf[0] = cmd;
 			cmd_buf[1] = tmp;
@@ -213,7 +213,7 @@ void send_control_data(void)
 			send_cmd(cmd_buf);
 		} else if(isp(keys + LD_KEY)) {
 			cmd = 0x14;
-			tmp = 3;
+			tmp = 0x03;
 			check_sum = cmd + tmp;
 			cmd_buf[0] = cmd;
 			cmd_buf[1] = tmp;
@@ -221,7 +221,7 @@ void send_control_data(void)
 			send_cmd(cmd_buf);
 		} else if(isp(keys + LL_KEY)) {
 			cmd = 0x14;
-			tmp = 2;
+			tmp = 0x02;
 			check_sum = cmd + tmp;
 			cmd_buf[0] = cmd;
 			cmd_buf[1] = tmp;
@@ -229,7 +229,16 @@ void send_control_data(void)
 			send_cmd(cmd_buf);
 		} else if(isp(keys + LR_KEY)){
 			cmd = 0x14;
-			tmp = 1;
+			tmp = 0x01;
+			check_sum = cmd + tmp;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = tmp;
+			cmd_buf[2] = check_sum;
+			send_cmd(cmd_buf);
+			send_cmd(cmd_buf);
+		} else if(isp(keys + RD_KEY)){
+			cmd = 0x14;
+			tmp = 0x04;
 			check_sum = cmd + tmp;
 			cmd_buf[0] = cmd;
 			cmd_buf[1] = tmp;
