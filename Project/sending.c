@@ -146,18 +146,22 @@ void send_control_data(void)
 		} else if(isp(keys + LL_KEY)) {
 			cmd = 0x13;
 			tmp = 0x00;
-			check_sum = cmd + tmp;
+			tmp1 = 0x00;
+			check_sum = cmd + tmp + tmp1;
 			cmd_buf[0] = cmd;
 			cmd_buf[1] = tmp;
-			cmd_buf[2] = check_sum;
+			cmd_buf[2] = tmp1;
+			cmd_buf[3] = check_sum;
 			send_cmd(cmd_buf);
 		} else if(isp(keys + LR_KEY)) {
 			cmd = 0x13;
 			tmp = 0x01;
-			check_sum = cmd + tmp;
+			tmp1 = 0x00;
+			check_sum = cmd + tmp + tmp1;
 			cmd_buf[0] = cmd;
 			cmd_buf[1] = tmp;
-			cmd_buf[2] = check_sum;
+			cmd_buf[2] = tmp1;
+			cmd_buf[3] = check_sum;
 			send_cmd(cmd_buf);
 		} else {
 			keys[L1_KEY].pressed_times = 0;
@@ -249,6 +253,30 @@ void send_control_data(void)
 			keys[R1_KEY].pressed_times = 0;
 		}
 
+	}  else if(isp(keys + R2_KEY)) {
+		if(isp(keys + LL_KEY)) {
+			cmd = 0x13;
+			tmp = 0x00;
+			tmp1 = 0x01;
+			check_sum = cmd + tmp + tmp1;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = tmp;
+			cmd_buf[2] = tmp1;
+			cmd_buf[3] = check_sum;
+			send_cmd(cmd_buf);
+		} else if(isp(keys + LR_KEY)) {
+			cmd = 0x13;
+			tmp = 0x01;
+			tmp1 = 0x01;
+			check_sum = cmd + tmp + tmp1;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = tmp;
+			cmd_buf[2] = tmp1;
+			cmd_buf[3] = check_sum;
+			send_cmd(cmd_buf);
+		} else {
+			keys[L1_KEY].pressed_times = 0;
+		}
 	} else if(isp(keys + LU_KEY)) {
 		cmd = 0x07;
 		check_sum = cmd;
