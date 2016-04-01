@@ -201,7 +201,7 @@ void send_control_data(void)
 			keys[L2_KEY].pressed_times = 0;
 		}
 
-	} else if(isp(keys + R1_KEY)) {
+	} else if(isp(keys + R2_KEY)) {
 
 		if(isp(keys + LU_KEY)) {
 			cmd = 0x14;
@@ -246,10 +246,10 @@ void send_control_data(void)
 			send_cmd(cmd_buf);
 			send_cmd(cmd_buf);
 		} else {
-			keys[R1_KEY].pressed_times = 0;
+			keys[R2_KEY].pressed_times = 0;
 		}
 
-	}  else if(isp(keys + R2_KEY)) {
+	}  else if(isp(keys + R1_KEY)) {
 		if(isp(keys + LL_KEY)) {
 			cmd = 0x13;
 			tmp = 0x01;
@@ -267,7 +267,7 @@ void send_control_data(void)
 			cmd_buf[2] = check_sum;
 			send_cmd(cmd_buf);
 		} else {
-			keys[R2_KEY].pressed_times = 0;
+			keys[R1_KEY].pressed_times = 0;
 		}
 	} else if(isp(keys + LU_KEY)) {
 		cmd = 0x07;
