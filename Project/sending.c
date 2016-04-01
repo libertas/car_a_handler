@@ -326,20 +326,18 @@ void send_control_data(void)
 				
 				move_count = 0;
 				
-				if(abs(spd_x) > abs(spd_y)) {
+				{
 					
 					#ifdef DEBUG
 					printf("spd_x = %d > spd_y = %d\n", spd_x, spd_y);
 					#endif
 					
 					cmd = 0x22;
-					
-					if(spd_x > 0)
-						tmp = spd;
-					else
-						tmp = (uint8_t)(-spd);
-					
-					tmp1 = 0;
+
+					tmp = spd_x;
+
+					tmp1 = spd_y;
+
 					check_sum = cmd + tmp + tmp1;
 					cmd_buf[0] = cmd;
 					cmd_buf[1] = tmp;
@@ -347,26 +345,6 @@ void send_control_data(void)
 					cmd_buf[3] = check_sum;
 					send_cmd(cmd_buf);
 					
-				} else {
-					
-					#ifdef DEBUG
-					printf("spd_x = %d <= spd_y = %d\n", spd_x, spd_y);
-					#endif
-					
-					cmd = 0x22;
-					tmp = 0;
-					
-					if(spd_y > 0)
-						tmp1 = spd;
-					else
-						tmp1 = (uint8_t)(-spd);
-					
-					check_sum = cmd + tmp + tmp1;
-					cmd_buf[0] = cmd;
-					cmd_buf[1] = tmp;
-					cmd_buf[2] = tmp1;
-					cmd_buf[3] = check_sum;
-					send_cmd(cmd_buf);
 				}
 				
 				send_cmd(cmd_buf);
