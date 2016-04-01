@@ -295,7 +295,7 @@ void send_control_data(void)
 	}
 
 	{
-		r_spd = data[8] - 0x80;
+		r_spd = 0x7f - data[8];
 		
 		if(abs(r_spd) > HAND_ZERO) {
 			static uint8_t rotate_count;
