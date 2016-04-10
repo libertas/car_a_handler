@@ -97,7 +97,6 @@ void send_control_data(void)
 	uint8_t cmd_buf[BUF_SIZE] = {0};
 	uint8_t cmd;
 	int8_t spd_x, spd_y, r_spd;
-	const int8_t spd = 50;
 	uint8_t tmp, tmp1;
 	uint8_t check_sum;
 

@@ -64,6 +64,7 @@ int main(void){
 		TIM_Cmd(TIM2, ENABLE);	 //Ê¹ÄÜtim2
 
 
+		uprintf(USART3, "Entering main loop of the handler\n");
 		while(1){
 			while(g_tim2_irq_flg == 0);
 
