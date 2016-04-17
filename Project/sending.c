@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -299,13 +300,13 @@ void send_control_data(void)
 	spd_x = data[6] - 0x80;
 	spd_y = 0x7f - data[7];
 	
-	if(r_spd < HAND_ZERO) {
+	if(fabsf(r_spd) < HAND_ZERO) {
 		r_spd = 0;
 	}
-	if(spd_x < HAND_ZERO) {
+	if(fabsf(spd_x) < HAND_ZERO) {
 		spd_x = 0;
 	}
-	if(spd_y < HAND_ZERO) {
+	if(fabsf(spd_y) < HAND_ZERO) {
 		spd_y = 0;
 	}
 	
