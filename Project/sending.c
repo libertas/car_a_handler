@@ -97,8 +97,7 @@ void send_control_data(void)
 	uint8_t cmd_buf[BUF_SIZE] = {0};
 	uint8_t cmd;
 	int8_t spd_x, spd_y, r_spd;
-	const int8_t spd = 50;
-	uint8_t tmp, tmp1;
+	uint8_t tmp;
 	uint8_t check_sum;
 
 
@@ -294,66 +293,34 @@ void send_control_data(void)
 
 	}
 
-	{
-		r_spd = 0x7f - data[8];
+	
+	static uint8_t old_spd_x, old_spd_y, old_spd_r;
+	r_spd = 0x7f - data[8];
+	spd_x = data[6] - 0x80;
+	spd_y = 0x7f - data[7];
+	
+	if(r_spd < HAND_ZERO) {
+		r_spd = 0;
+	}
+	if(spd_x < HAND_ZERO) {
+		spd_x = 0;
+	}
+	if(spd_y < HAND_ZERO) {
+		spd_y = 0;
+	}
+	
+	if(r_spd == old_spd_r && spd_x == old_spd_x && spd_y == old_spd_y) {
+		return;
+	} else {
+		cmd_buf[0] = 0x30;
+		cmd_buf[1] = spd_x;
+		cmd_buf[2] = spd_y;
+		cmd_buf[3] = r_spd;
+		cmd_buf[4] = cmd_buf[0] + cmd_buf[1] + cmd_buf[2] + cmd_buf[3];
+		send_cmd(cmd_buf);
 		
-		if(abs(r_spd) > HAND_ZERO) {
-			static uint8_t rotate_count;
-			rotate_count++;
-			if(rotate_count < CMD_TIMES)
-				return;
-
-			rotate_count = 0;
-
-			cmd = 0x10;
-			cmd_buf[0] = cmd;
-			cmd_buf[1] = r_spd;
-			cmd_buf[2] = cmd + r_spd;
-			send_cmd(cmd_buf);
-		
-			#ifdef DEBUG
-			printf("cmd:0x%x\tr_spd:0x%x\n", (uint8_t)cmd, (uint8_t)r_spd);
-			#endif
-		} else {
-			spd_x = data[6] - 0x80;
-			spd_y = 0x7f - data[7];
-
-			if(abs(spd_x) > HAND_ZERO || abs(spd_y) > HAND_ZERO) {
-				static uint8_t move_count = 0;
-				move_count++;
-				if(move_count < CMD_TIMES)
-					return;
-				
-				move_count = 0;
-				
-				{
-					
-					#ifdef DEBUG
-					printf("spd_x = %d > spd_y = %d\n", spd_x, spd_y);
-					#endif
-					
-					cmd = 0x22;
-
-					tmp = spd_x;
-
-					tmp1 = spd_y;
-
-					check_sum = cmd + tmp + tmp1;
-					cmd_buf[0] = cmd;
-					cmd_buf[1] = tmp;
-					cmd_buf[2] = tmp1;
-					cmd_buf[3] = check_sum;
-					send_cmd(cmd_buf);
-					
-				}
-				
-				send_cmd(cmd_buf);
-				
-			} else {
-				#ifdef DEBUG
-				printf("r_spd:%x\tspd_x:%x\tspd_y:%x\n", (uint8_t)r_spd, (uint8_t)spd_x, (uint8_t)spd_y);
-				#endif
-			}
-		}
+		old_spd_x = spd_x;
+		old_spd_y = spd_y;
+		old_spd_r = r_spd;
 	}
 }
