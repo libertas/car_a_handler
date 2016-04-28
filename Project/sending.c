@@ -107,7 +107,7 @@ void send_control_data(void)
 	if(isp(keys + L1_KEY)&&
 		isp(keys + L2_KEY)&&
 		isp(keys + R1_KEY)&&
-		isp(keys + R2_KEY)) {
+		isp(keys + R2_KEY)) {//fan_toggle(start & stop)
 			
 			#ifdef DEBUG_KEYS
 			printf("l1 l2 r1 r2 pressed\n");
@@ -129,7 +129,7 @@ void send_control_data(void)
 			cmd_buf[1] = check_sum;
 			send_cmd(cmd_buf);
 
-	} else if(isp(keys + L1_KEY)) {
+	} else if(isp(keys + RU_KEY)) {
 
 		if(isp(keys + LU_KEY)) {
 			cmd = 0x02;
@@ -143,7 +143,7 @@ void send_control_data(void)
 			cmd_buf[0] = cmd;
 			cmd_buf[1] = check_sum;
 			send_cmd(cmd_buf);
-		} else if(isp(keys + LL_KEY)) {
+		} else if(isp(keys + LL_KEY)) {//right_pushrod pull
 			cmd = 0x13;
 			tmp = 0x00;
 			check_sum = cmd + tmp;
@@ -151,7 +151,7 @@ void send_control_data(void)
 			cmd_buf[1] = tmp;
 			cmd_buf[2] = check_sum;
 			send_cmd(cmd_buf);
-		} else if(isp(keys + LR_KEY)) {
+		} else if(isp(keys + LR_KEY)) {//right_pushrod push
 			cmd = 0x13;
 			tmp = 0x10;
 			check_sum = cmd + tmp;
@@ -160,50 +160,12 @@ void send_control_data(void)
 			cmd_buf[2] = check_sum;
 			send_cmd(cmd_buf);
 		} else {
-			keys[L1_KEY].pressed_times = 0;
+			keys[RU_KEY].pressed_times = 0;
 		}
 
-	} else if(isp(keys + L2_KEY)) {
+	} else if(isp(keys + RD_KEY)) {//mag
 
-		if(isp(keys + LU_KEY)) {
-			cmd = 0x12;
-			tmp = 1;
-			check_sum = cmd + tmp;
-			cmd_buf[0] = cmd;
-			cmd_buf[1] = tmp;
-			cmd_buf[2] = check_sum;
-			send_cmd(cmd_buf);
-		} else if(isp(keys + LD_KEY)) {
-			cmd = 0x12;
-			tmp = 0xff;
-			check_sum = cmd + tmp;
-			cmd_buf[0] = cmd;
-			cmd_buf[1] = tmp;
-			cmd_buf[2] = check_sum;
-			send_cmd(cmd_buf);
-		} else if(isp(keys + LL_KEY)) {
-			cmd = 0x11;
-			tmp = 0xff;
-			check_sum = cmd + tmp;
-			cmd_buf[0] = cmd;
-			cmd_buf[1] = tmp;
-			cmd_buf[2] = check_sum;
-			send_cmd(cmd_buf);
-		} else if(isp(keys + LR_KEY)){
-			cmd = 0x11;
-			tmp = 1;
-			check_sum = cmd + tmp;
-			cmd_buf[0] = cmd;
-			cmd_buf[1] = tmp;
-			cmd_buf[2] = check_sum;
-			send_cmd(cmd_buf);
-		} else {
-			keys[L2_KEY].pressed_times = 0;
-		}
-
-	} else if(isp(keys + R2_KEY)) {
-
-		if(isp(keys + LU_KEY)) {
+		if(isp(keys + LD_KEY)) {//mag far
 			cmd = 0x14;
 			tmp = 0x00;
 			check_sum = cmd + tmp;
@@ -211,7 +173,7 @@ void send_control_data(void)
 			cmd_buf[1] = tmp;
 			cmd_buf[2] = check_sum;
 			send_cmd(cmd_buf);
-		} else if(isp(keys + LD_KEY)) {
+		} else if(isp(keys + LU_KEY)) {//mag near
 			cmd = 0x14;
 			tmp = 0x03;
 			check_sum = cmd + tmp;
@@ -219,7 +181,7 @@ void send_control_data(void)
 			cmd_buf[1] = tmp;
 			cmd_buf[2] = check_sum;
 			send_cmd(cmd_buf);
-		} else if(isp(keys + LL_KEY)) {
+		} else if(isp(keys + LR_KEY)) {//mag out
 			cmd = 0x14;
 			tmp = 0x02;
 			check_sum = cmd + tmp;
@@ -227,7 +189,7 @@ void send_control_data(void)
 			cmd_buf[1] = tmp;
 			cmd_buf[2] = check_sum;
 			send_cmd(cmd_buf);
-		} else if(isp(keys + LR_KEY)){
+		} else if(isp(keys + LL_KEY)){//mag in
 			cmd = 0x14;
 			tmp = 0x01;
 			check_sum = cmd + tmp;
@@ -235,22 +197,12 @@ void send_control_data(void)
 			cmd_buf[1] = tmp;
 			cmd_buf[2] = check_sum;
 			send_cmd(cmd_buf);
-			send_cmd(cmd_buf);
-		} else if(isp(keys + RD_KEY)){
-			cmd = 0x14;
-			tmp = 0x04;
-			check_sum = cmd + tmp;
-			cmd_buf[0] = cmd;
-			cmd_buf[1] = tmp;
-			cmd_buf[2] = check_sum;
-			send_cmd(cmd_buf);
-			send_cmd(cmd_buf);
 		} else {
-			keys[R2_KEY].pressed_times = 0;
+			keys[RD_KEY].pressed_times = 0;
 		}
 
-	}  else if(isp(keys + R1_KEY)) {
-		if(isp(keys + LL_KEY)) {
+	} else if(isp(keys + RL_KEY)) {
+		if(isp(keys + LL_KEY)) {//left_pushrod pull
 			cmd = 0x13;
 			tmp = 0x01;
 			check_sum = cmd + tmp;
@@ -258,7 +210,7 @@ void send_control_data(void)
 			cmd_buf[1] = tmp;
 			cmd_buf[2] = check_sum;
 			send_cmd(cmd_buf);
-		} else if(isp(keys + LR_KEY)) {
+		} else if(isp(keys + LR_KEY)) {//left_pushrod push
 			cmd = 0x13;
 			tmp = 0x11;
 			check_sum = cmd + tmp;
@@ -266,20 +218,52 @@ void send_control_data(void)
 			cmd_buf[1] = tmp;
 			cmd_buf[2] = check_sum;
 			send_cmd(cmd_buf);
+		} else if(isp(keys + LU_KEY)) {//fan_kowtow
+			cmd = 0x12;
+			tmp = 1;
+			check_sum = cmd + tmp;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = tmp;
+			cmd_buf[2] = check_sum;
+			send_cmd(cmd_buf);
+		} else if(isp(keys + LD_KEY)) {//fan_kowtow
+			cmd = 0x12;
+			tmp = 0xff;
+			check_sum = cmd + tmp;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = tmp;
+			cmd_buf[2] = check_sum;
+			send_cmd(cmd_buf);
 		} else {
-			keys[R1_KEY].pressed_times = 0;
+			keys[RL_KEY].pressed_times = 0;
 		}
-	} else if(isp(keys + LU_KEY)) {
+	} else if(isp(keys + L1_KEY)) {//fan up
 		cmd = 0x07;
 		check_sum = cmd;
 		cmd_buf[0] = cmd;
 		cmd_buf[1] = check_sum;
 		send_cmd(cmd_buf);
-	} else if(isp(keys + LD_KEY)) {
+	} else if(isp(keys + L2_KEY)) {//fan down
 		cmd = 0x08;
 		check_sum = cmd;
 		cmd_buf[0] = cmd;
 		cmd_buf[1] = check_sum;
+		send_cmd(cmd_buf);
+	} else if(isp(keys + R1_KEY)) {//fan_roll left
+		cmd = 0x11;
+		tmp = 0xff;
+		check_sum = cmd + tmp;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = tmp;
+		cmd_buf[2] = check_sum;
+		send_cmd(cmd_buf);
+	} else if(isp(keys + R2_KEY)){//fan_roll right
+		cmd = 0x11;
+		tmp = 1;
+		check_sum = cmd + tmp;
+		cmd_buf[0] = cmd;
+		cmd_buf[1] = tmp;
+		cmd_buf[2] = check_sum;
 		send_cmd(cmd_buf);
 	} else {
 
