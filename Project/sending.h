@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-#define HAND_ZERO 0x3f
+#define HAND_ZERO 0x5f
 #define CMD_TIMES 10
 #define BUF_SIZE 17
 
