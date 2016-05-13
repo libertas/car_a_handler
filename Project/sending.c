@@ -143,7 +143,7 @@ void send_control_data(void)
 			cmd_buf[0] = cmd;
 			cmd_buf[1] = check_sum;
 			send_cmd(cmd_buf);
-		} else if(isp(keys + LL_KEY)) {//right_pushrod pull
+		} else if(isp(keys + LL_KEY)) {//right_push_rod pull
 			cmd = 0x13;
 			tmp = 0x00;
 			check_sum = cmd + tmp;
@@ -151,7 +151,7 @@ void send_control_data(void)
 			cmd_buf[1] = tmp;
 			cmd_buf[2] = check_sum;
 			send_cmd(cmd_buf);
-		} else if(isp(keys + LR_KEY)) {//right_pushrod push
+		} else if(isp(keys + LR_KEY)) {//right_push_rod push
 			cmd = 0x13;
 			tmp = 0x10;
 			check_sum = cmd + tmp;
@@ -202,7 +202,7 @@ void send_control_data(void)
 		}
 
 	} else if(isp(keys + RL_KEY)) {
-		if(isp(keys + LL_KEY)) {//left_pushrod pull
+		if(isp(keys + LL_KEY)) {//left_push_rod pull
 			cmd = 0x13;
 			tmp = 0x01;
 			check_sum = cmd + tmp;
@@ -210,7 +210,7 @@ void send_control_data(void)
 			cmd_buf[1] = tmp;
 			cmd_buf[2] = check_sum;
 			send_cmd(cmd_buf);
-		} else if(isp(keys + LR_KEY)) {//left_pushrod push
+		} else if(isp(keys + LR_KEY)) {//left_push_rod push
 			cmd = 0x13;
 			tmp = 0x11;
 			check_sum = cmd + tmp;
