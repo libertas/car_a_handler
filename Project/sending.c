@@ -165,7 +165,7 @@ void send_control_data(void)
 
 	} else if(isp(keys + RD_KEY)) {//mag
 
-		if(isp(keys + LD_KEY)) {//mag far
+		if(isp(keys + LD_KEY)) {//mag_far
 			cmd = 0x14;
 			tmp = 0x00;
 			check_sum = cmd + tmp;
@@ -173,7 +173,7 @@ void send_control_data(void)
 			cmd_buf[1] = tmp;
 			cmd_buf[2] = check_sum;
 			send_cmd(cmd_buf);
-		} else if(isp(keys + LU_KEY)) {//mag near
+		} else if(isp(keys + LU_KEY)) {//mag_near
 			cmd = 0x14;
 			tmp = 0x03;
 			check_sum = cmd + tmp;
@@ -181,7 +181,7 @@ void send_control_data(void)
 			cmd_buf[1] = tmp;
 			cmd_buf[2] = check_sum;
 			send_cmd(cmd_buf);
-		} else if(isp(keys + LR_KEY)) {//mag out
+		} else if(isp(keys + LR_KEY)) {//mag_out
 			cmd = 0x14;
 			tmp = 0x02;
 			check_sum = cmd + tmp;
@@ -189,7 +189,7 @@ void send_control_data(void)
 			cmd_buf[1] = tmp;
 			cmd_buf[2] = check_sum;
 			send_cmd(cmd_buf);
-		} else if(isp(keys + LL_KEY)){//mag in
+		} else if(isp(keys + LL_KEY)){//mag_in
 			cmd = 0x14;
 			tmp = 0x01;
 			check_sum = cmd + tmp;
