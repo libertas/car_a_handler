@@ -120,6 +120,15 @@ void send_control_data(void)
 			send_cmd(cmd_buf);
 			
 			delay(200);
+	} else if(isp(keys + R1_KEY)&&
+			isp(keys + R2_KEY)) {//manual_to_auto
+			
+			cmd = 0x0b;
+			check_sum = cmd;
+			cmd_buf[0] = cmd;
+			cmd_buf[1] = check_sum;
+			send_cmd(cmd_buf);
+			
 	} else if(isp(keys + RR_KEY)) {
 
 			// stop_all()
