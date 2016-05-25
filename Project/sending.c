@@ -56,7 +56,7 @@ void send_cmd(uint8_t *cmd_buf)
 	for(i = 0; i < cmd_len; i++) {
 		printf("0x%x\t", cmd_buf[i]);
 	}
-	printf("\n");
+	printf("\r\n");
 	#endif
 
 	for(i = 0; i < cmd_len; i++) {
@@ -288,7 +288,7 @@ void send_control_data(void)
 	}
 
 	
-	static uint8_t old_spd_x, old_spd_y, old_spd_r;
+	static int8_t old_spd_x, old_spd_y, old_spd_r;
 	r_spd = 0x7f - data[8];
 	spd_x = data[6] - 0x80;
 	spd_y = 0x7f - data[7];
