@@ -303,9 +303,27 @@ void send_control_data(void)
 		spd_y = 0;
 	}
 	
+	static uint16_t zero_count;
 	if(r_spd == old_spd_r && spd_x == old_spd_x && spd_y == old_spd_y) {
-		return;
+		if(r_spd == 0 && spd_x == 0 && spd_y == 0 && zero_count < 30) {
+			zero_count++;
+			
+			cmd_buf[0] = 0x30;
+			cmd_buf[1] = spd_x;
+			cmd_buf[2] = spd_y;
+			cmd_buf[3] = r_spd;
+			cmd_buf[4] = cmd_buf[0] + cmd_buf[1] + cmd_buf[2] + cmd_buf[3];
+			send_cmd(cmd_buf);
+			
+			old_spd_x = spd_x;
+			old_spd_y = spd_y;
+			old_spd_r = r_spd;
+		} else {
+			return;
+		}
 	} else {
+		zero_count = 0;
+		
 		cmd_buf[0] = 0x30;
 		cmd_buf[1] = spd_x;
 		cmd_buf[2] = spd_y;
